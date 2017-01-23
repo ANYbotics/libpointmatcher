@@ -298,7 +298,7 @@ install(FILES
 
 #========================= Documentation ===========================
 
-set(GENERATE_API_DOC false CACHE BOOL "Set to true to build the documentation using Doxygen")
+set(GENERATE_API_DOC true CACHE BOOL "Set to true to build the documentation using Doxygen")
 
 if(GENERATE_API_DOC)
 

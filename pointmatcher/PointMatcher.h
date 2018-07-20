@@ -48,7 +48,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 
-#include "nabo/nabo.h"
 
 #include <boost/thread/mutex.hpp>
 
@@ -60,13 +59,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#include <cstdint>
 #include <boost/cstdint.hpp>
 
+#include "DeprecationWarnings.h"
 #include "Parametrizable.h"
 #include "Registrar.h"
  
-#if NABO_VERSION_INT < 10006
-	#error "You need libnabo version 1.0.6 or greater"
-#endif
-
 /*! 
 	\file PointMatcher.h
 	\brief public interface
@@ -282,6 +278,7 @@ struct PointMatcher
 		DataPoints createSimilarEmpty() const;
 		DataPoints createSimilarEmpty(Index pointCount) const;
 		void setColFrom(Index thisCol, const DataPoints& that, Index thatCol);
+		void swapCols(Index iCol,Index jCol);
 		
 		// methods related to features
 		void allocateFeature(const std::string& name, const unsigned dim);
@@ -375,6 +372,10 @@ struct PointMatcher
 		typedef Matrix Dists; //!< Squared distances to closest points, dense matrix of ScalarType
 		typedef IntMatrix Ids; //!< Identifiers of closest points, dense matrix of integers
 	
+
+		static constexpr int InvalidId = -1; //! In case of too few matches the ids are filled with InvalidId
+		static constexpr T InvalidDist = std::numeric_limits<T>::infinity(); //! In case of too few matches the dists are filled with InvalidDist
+
 		Matches();
 		Matches(const Dists& dists, const Ids ids);
 		Matches(const int knn, const int pointsCount);
@@ -534,7 +535,7 @@ struct PointMatcher
 			T weightedPointUsedRatio;//!< the ratio of how many points were used (with weight) for error minimization
 
 			ErrorElements();
-			ErrorElements(const DataPoints& requestedPts, const DataPoints sourcePts, const OutlierWeights outlierWeights, const Matches matches);
+			ErrorElements(const DataPoints& requestedPts, const DataPoints& sourcePts, const OutlierWeights& outlierWeights, const Matches& matches);
 		};
 		
 		ErrorMinimizer();
@@ -733,8 +734,20 @@ struct PointMatcher
 		bool hasMap() const;
 		bool setMap(const DataPoints& map);
 		void clearMap();
+		PM_DEPRECATED("Use getPrefilteredInternalMap instead. "
+			            "Function now always returns map with filter chain applied. "
+			            "This may have altered your program behavior."
+		              "Reasons for this stated here and in associated PR: "
+		              "https://github.com/ethz-asl/libpointmatcher/issues/209.")
 		const DataPoints& getInternalMap() const;
+		const DataPoints& getPrefilteredInternalMap() const;
+		PM_DEPRECATED("Use getPrefilteredMap instead. "
+									"Function now always returns map with filter chain applied. "
+			            "This may have altered your program behavior."
+			            "Reasons for this stated here and in associated PR: "
+			            "https://github.com/ethz-asl/libpointmatcher/issues/209")
 		const DataPoints getMap() const;
+		const DataPoints getPrefilteredMap() const;
 		
 	protected:
 		DataPoints mapPointCloud; //!< point cloud of the map, always in global frame (frame of first point cloud)

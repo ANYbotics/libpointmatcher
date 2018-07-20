@@ -5,24 +5,24 @@ PACKAGE="libpointmatcher"
 declare -a DIRECTORIES=(
   "contrib"
   "debian"
-  "examples"
-  "evaluations"
   "doc"
+  "evaluations"
+  "examples"
   "pointmatcher"
   "utest"
 )
 
 declare -a FILES=(
-  "CMakeLists.txt"
   "CHANGELOG.rst"
-  "package.xml"
   "cmake_uninstall.cmake.in"
+  "CMakeLists.txt"
   "Doxyfile.in"
   "libpointmatcherConfig.cmake.in"
   "libpointmatcherConfigVersion.cmake.in"
   "mkdocs.yml"
-  "README.md"
+  "package.xml"
   "pointmatcher.pc.in"
+  "README.md"
   "UseDoxygen.cmake"
 )
 
@@ -40,6 +40,6 @@ done
 
 cd ws/${PACKAGE}
 
-tar -cJ --exclude='./debian' -f ../libpointmatcher_1.2.0.orig.tar.xz .
+tar -cJ --exclude='./debian' -f ../libpointmatcher_1.2.4.orig.tar.xz .
 
 #pdebuild --architecture amd64 --buildresult ~/pbuilder_ws/ws/libpointmatcher/ws/ --pbuilderroot "sudo DIST=xenial ARCH=amd64"

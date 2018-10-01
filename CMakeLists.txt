@@ -364,15 +364,10 @@ set_target_properties(pointmatcher PROPERTIES VERSION "${POINTMATCHER_PROJECT_VE
 
 #========================= Install header ===========================
 
-install(FILES
-	pointmatcher/PointMatcher.h
-	pointmatcher/PointMatcherPrivate.h
-	pointmatcher/Parametrizable.h
-	pointmatcher/Registrar.h
-	pointmatcher/Timer.h
-	pointmatcher/Functions.h
-	pointmatcher/IO.h
-	DESTINATION ${INSTALL_INCLUDE_DIR}/pointmatcher
+install(
+	DIRECTORY pointmatcher
+	DESTINATION ${INSTALL_INCLUDE_DIR}
+	FILES_MATCHING PATTERN "*.h"
 )
 
 #========================= Documentation ===========================
@@ -441,13 +436,24 @@ configure_file(libpointmatcherConfig.cmake.in
 
 # 2- installation build #
 
-# Change the include location for the case of an install location
-set(CONF_INCLUDE_DIRS ${INSTALL_INCLUDE_DIR} ${CONF_INCLUDE_DIRS} )
-
 #FIXME: this will only be applied to installed files. Confirm that we want that.
 # gather all the includes but remove ones in the source tree
 # because we added an include for the local yaml-cpp-pm we should also remove it
-list(REMOVE_ITEM CONF_INCLUDE_DIRS ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/contrib/yaml-cpp-pm/include)
+list(REMOVE_ITEM CONF_INCLUDE_DIRS
+	${CMAKE_SOURCE_DIR}
+	${CMAKE_SOURCE_DIR}/pointmatcher
+	${CMAKE_SOURCE_DIR}/pointmatcher/DataPointsFilters
+	${CMAKE_SOURCE_DIR}/pointmatcher/DataPointsFilters/utils
+	${CMAKE_SOURCE_DIR}/contrib/yaml-cpp-pm/include
+)
+
+# Change the include location for the case of an install location
+set(CONF_INCLUDE_DIRS
+	${CONF_INCLUDE_DIRS}
+	${INSTALL_INCLUDE_DIR}
+	${INSTALL_INCLUDE_DIR}/pointmatcher/DataPointsFilters
+	${INSTALL_INCLUDE_DIR}/pointmatcher/DataPointsFilters/utils
+)
 
 if(SHARED_LIBS AND (NOT USE_SYSTEM_YAML_CPP))
   list(REMOVE_ITEM EXTERNAL_LIBS ${yaml-cpp-pm_LIB})

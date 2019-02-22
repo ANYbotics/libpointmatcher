@@ -11,11 +11,11 @@
 	<buildtool_depend>cmake</buildtool_depend>
 
 	<build_depend>boost</build_depend>
-	<build_depend>libnabo</build_depend>
+	<build_depend>libnabo-dev</build_depend>
 	<build_depend>eigen</build_depend>
 
 	<run_depend>boost</run_depend>
-	<run_depend>libnabo</run_depend>
+	<run_depend>libnabo-dev</run_depend>
 	<run_depend>eigen</run_depend>
 	<run_depend>catkin</run_depend>
 

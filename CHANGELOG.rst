@@ -2,6 +2,11 @@
 Changelog for package libpointmatcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.5 (2019-04-16)
+------------------
+* Faster normal space filters
+* Fix normal hashing
+
 1.2.4 (2015-07-20)
 ------------------
 * Merge branch 'master' into debian

@@ -50,7 +50,7 @@ struct NormalSpaceDataPointsFilter : public PointMatcher<T>::DataPointsFilter
 	typedef Parametrizable::ParameterDoc ParameterDoc;
 	typedef Parametrizable::ParametersDoc ParametersDoc;
 	typedef Parametrizable::InvalidParameter InvalidParameter;
-	
+
 	typedef typename DataPoints::Index Index;
 
 	typedef typename PointMatcher<T>::DataPoints::InvalidField InvalidField;
@@ -73,11 +73,11 @@ public:
 	const std::size_t nbSample;
 	const std::size_t seed;
 	const T epsilon;
-	
+
 	//Ctor, uses parameter interface
 	NormalSpaceDataPointsFilter(const Parameters& params = Parameters());
 	//NormalSpaceDataPointsFilter();
-	
+
 	//Dtor
 	virtual ~NormalSpaceDataPointsFilter() {};
 
@@ -86,8 +86,6 @@ public:
 
 private:
 	inline std::size_t bucketIdx(T theta, T phi) const;
-	
+
 	const std::size_t nbBucket;
 };
-	
-

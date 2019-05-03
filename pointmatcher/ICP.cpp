@@ -43,7 +43,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MatchersImpl.h"
 #include "OutlierFiltersImpl.h"
 #include "ErrorMinimizersImpl.h"
-#include "ErrorMinimizers/PointToPlane.h"
 #include "TransformationCheckersImpl.h"
 #include "InspectorsImpl.h"
 
@@ -65,7 +64,8 @@ InvalidModuleType::InvalidModuleType(const std::string& reason):
 template<typename T>
 PointMatcher<T>::ICPChainBase::ICPChainBase():
 	prefilteredReadingPtsCount(0),
-	prefilteredReferencePtsCount(0)
+	prefilteredReferencePtsCount(0),
+	maxNumIterationsReached(false)
 {}
 
 //! virtual desctructor
@@ -101,15 +101,15 @@ void PointMatcher<T>::ICPChainBase::setDefault()
 {
 	this->cleanup();
 	
-	this->transformations.push_back(new typename TransformationsImpl<T>::RigidTransformation());
-	this->readingDataPointsFilters.push_back(new typename DataPointsFiltersImpl<T>::RandomSamplingDataPointsFilter());
-	this->referenceDataPointsFilters.push_back(new typename DataPointsFiltersImpl<T>::SamplingSurfaceNormalDataPointsFilter());
-	this->outlierFilters.push_back(new typename OutlierFiltersImpl<T>::TrimmedDistOutlierFilter());
-	this->matcher.reset(new typename MatchersImpl<T>::KDTreeMatcher());
-	this->errorMinimizer.reset(new PointToPlaneErrorMinimizer<T>());
-	this->transformationCheckers.push_back(new typename TransformationCheckersImpl<T>::CounterTransformationChecker());
-	this->transformationCheckers.push_back(new typename TransformationCheckersImpl<T>::DifferentialTransformationChecker());
-	this->inspector.reset(new typename InspectorsImpl<T>::NullInspector);
+	this->transformations.push_back(std::make_shared<typename TransformationsImpl<T>::RigidTransformation>());
+	this->readingDataPointsFilters.push_back(std::make_shared<typename DataPointsFiltersImpl<T>::RandomSamplingDataPointsFilter>());
+	this->referenceDataPointsFilters.push_back(std::make_shared<typename DataPointsFiltersImpl<T>::SamplingSurfaceNormalDataPointsFilter>());
+	this->outlierFilters.push_back(std::make_shared<typename OutlierFiltersImpl<T>::TrimmedDistOutlierFilter>());
+	this->matcher = std::make_shared<typename MatchersImpl<T>::KDTreeMatcher>();
+	this->errorMinimizer = std::make_shared<PointToPlaneErrorMinimizer<T> >();
+	this->transformationCheckers.push_back(std::make_shared<typename TransformationCheckersImpl<T>::CounterTransformationChecker>());
+	this->transformationCheckers.push_back(std::make_shared<typename TransformationCheckersImpl<T>::DifferentialTransformationChecker>());
+	this->inspector = std::make_shared<typename InspectorsImpl<T>::NullInspector>();
 }
 
 //! Construct an ICP algorithm from a YAML file
@@ -143,9 +143,9 @@ void PointMatcher<T>::ICPChainBase::loadFromYaml(std::istream& in)
 
 	// See if to use a rigid transformation
 	if (nodeVal("errorMinimizer", doc) != "PointToPointSimilarityErrorMinimizer")
-		this->transformations.push_back(new typename TransformationsImpl<T>::RigidTransformation());
+		this->transformations.push_back(std::make_shared<typename TransformationsImpl<T>::RigidTransformation>());
 	else
-		this->transformations.push_back(new typename TransformationsImpl<T>::SimilarityTransformation());
+		this->transformations.push_back(std::make_shared<typename TransformationsImpl<T>::SimilarityTransformation>());
 	
 	usedModuleTypes.insert(createModulesFromRegistrar("transformationCheckers", doc, pm.REG(TransformationChecker), transformationCheckers));
 	usedModuleTypes.insert(createModuleFromRegistrar("inspector", doc, pm.REG(Inspector),inspector));
@@ -180,10 +180,17 @@ unsigned PointMatcher<T>::ICPChainBase::getPrefilteredReferencePtsCount() const
 	return prefilteredReferencePtsCount;
 }
 
+//! Return the flag that informs if we reached the maximum number of iterations during the last iterative process
+template<typename T>
+bool PointMatcher<T>::ICPChainBase::getMaxNumIterationsReached() const
+{
+	return maxNumIterationsReached;
+}
+
 //! Instantiate modules if their names are in the YAML file
 template<typename T>
 template<typename R>
-const std::string& PointMatcher<T>::ICPChainBase::createModulesFromRegistrar(const std::string& regName, const YAML::Node& doc, const R& registrar, PointMatcherSupport::SharedPtrVector<typename R::TargetType>& modules)
+const std::string& PointMatcher<T>::ICPChainBase::createModulesFromRegistrar(const std::string& regName, const YAML::Node& doc, const R& registrar, std::vector<std::shared_ptr<typename R::TargetType> >& modules)
 {
 	const YAML::Node *reg = doc.FindValue(regName);
 	if (reg)
@@ -201,13 +208,13 @@ const std::string& PointMatcher<T>::ICPChainBase::createModulesFromRegistrar(con
 //! Instantiate a module if its name is in the YAML file
 template<typename T>
 template<typename R>
-const std::string& PointMatcher<T>::ICPChainBase::createModuleFromRegistrar(const std::string& regName, const YAML::Node& doc, const R& registrar, boost::shared_ptr<typename R::TargetType>& module)
+const std::string& PointMatcher<T>::ICPChainBase::createModuleFromRegistrar(const std::string& regName, const YAML::Node& doc, const R& registrar, std::shared_ptr<typename R::TargetType>& module)
 {
 	const YAML::Node *reg = doc.FindValue(regName);
 	if (reg)
 	{
 		//cout << regName << endl;
-		module.reset(registrar.createFromYAML(*reg));
+		module = registrar.createFromYAML(*reg);
 	}
 	else
 		module.reset();
@@ -313,6 +320,16 @@ typename PointMatcher<T>::TransformationParameters PointMatcher<T>::ICP::compute
 	const TransformationParameters& T_refIn_refMean,
 	const TransformationParameters& T_refIn_dataIn)
 {
+	const int dim(reference.features.rows());
+
+	if (T_refIn_dataIn.cols() != T_refIn_dataIn.rows()) {
+		throw runtime_error("The initial transformation matrix must be squared.");
+	}
+	if (dim != T_refIn_dataIn.cols()) {
+		throw runtime_error("The shape of initial transformation matrix must be NxN. "
+											  "Where N is the number of rows in the read/reference scans.");
+	}
+
 	timer t; // Print how long take the algo
 	
 	// Apply readings filters
@@ -322,7 +339,7 @@ typename PointMatcher<T>::TransformationParameters PointMatcher<T>::ICP::compute
 	this->readingDataPointsFilters.init();
 	this->readingDataPointsFilters.apply(reading);
 	readingFiltered = reading;
-	
+
 	// Reajust reading position: 
 	// from here reading is express in frame <refMean>
 	TransformationParameters 
@@ -334,10 +351,10 @@ typename PointMatcher<T>::TransformationParameters PointMatcher<T>::ICP::compute
 	
 	// Since reading and reference are express in <refMean>
 	// the frame <refMean> is equivalent to the frame <iter(0)>
-	const int dim(reference.features.rows());
 	TransformationParameters T_iter = Matrix::Identity(dim, dim);
 	
 	bool iterate(true);
+	this->maxNumIterationsReached = false;
 	this->transformationCheckers.init(T_iter, iterate);
 
 	size_t iterationCount(0);
@@ -399,8 +416,15 @@ typename PointMatcher<T>::TransformationParameters PointMatcher<T>::ICP::compute
 		//	stepReading, reference, outlierWeights, matches);
 		
 		// in test
-		
-		this->transformationCheckers.check(T_iter, iterate);
+		try
+		{
+			this->transformationCheckers.check(T_iter, iterate);
+		}
+		catch(const typename TransformationCheckersImpl<T>::CounterTransformationChecker::MaxNumIterationsReached & e)
+		{
+			iterate = false;
+			this->maxNumIterationsReached = true;
+		}
 	
 		++iterationCount;
 	}

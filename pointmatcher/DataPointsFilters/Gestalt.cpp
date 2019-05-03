@@ -36,6 +36,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "utils.h"
 
+#include <cmath>
+
 // Eigenvalues
 #include "Eigen/QR"
 #include "Eigen/Eigenvalues"
@@ -245,12 +247,12 @@ void GestaltDataPointsFilter<T>::buildNew(
   // vector to hold the first point in a voxel
   // this point will be ovewritten in the input cloud with
   // the output value
-  std::vector<Voxel>* voxels;
+  std::vector<Voxel> voxels;
 
   // try allocating vector. If too big return error
   try 
   {
-    voxels = new std::vector<Voxel>(numVox);
+    voxels = std::vector<Voxel>(numVox);
   } 
   catch (std::bad_alloc&) 
   {
@@ -275,14 +277,14 @@ void GestaltDataPointsFilter<T>::buildNew(
       idx = i + j * numDivX;
     }
 
-    const unsigned int pointsInVox = (*voxels)[idx].numPoints + 1;
+    const unsigned int pointsInVox = voxels[idx].numPoints + 1;
 
     if (pointsInVox == 1)
     {
-      (*voxels)[idx].firstPoint = p;
+      voxels[idx].firstPoint = p;
     }
 
-    (*voxels)[idx].numPoints = pointsInVox;
+    voxels[idx].numPoints = pointsInVox;
 
     indices[p] = idx;
 
@@ -296,7 +298,7 @@ void GestaltDataPointsFilter<T>::buildNew(
   for (int p = 0; p < numPoints ; ++p)
   {
     const unsigned int idx = indices[p];
-    const unsigned int firstPoint = (*voxels)[idx].firstPoint;
+    const unsigned int firstPoint = voxels[idx].firstPoint;
 
     // Choose random point in voxel
     const int randomIndex = std::rand() % numPoints;
@@ -308,8 +310,8 @@ void GestaltDataPointsFilter<T>::buildNew(
 
   for (unsigned int idx = 0; idx < numVox; ++idx)
   {
-    const unsigned int numPoints = (*voxels)[idx].numPoints;
-    const unsigned int firstPoint = (*voxels)[idx].firstPoint;
+    const unsigned int numPoints = voxels[idx].numPoints;
+    const unsigned int firstPoint = voxels[idx].firstPoint;
 
     if (numPoints > 0)
     {
@@ -320,8 +322,6 @@ void GestaltDataPointsFilter<T>::buildNew(
       pointsToKeep.push_back(firstPoint);
     }
   }
-
-  delete voxels;
 
 	const unsigned int nbPointsToKeep(pointsToKeep.size());
   // now the keypoints are in pointsToKeep
@@ -345,7 +345,7 @@ void GestaltDataPointsFilter<T>::fuseRange(
 {
   using namespace PointMatcherSupport;
   
-  typedef typename Eigen::Matrix<boost::int64_t, Eigen::Dynamic, Eigen::Dynamic> Int64Matrix;
+  typedef typename Eigen::Matrix<std::int64_t, Eigen::Dynamic, Eigen::Dynamic> Int64Matrix;
 
   const unsigned int nbIdxToKeep(data.indicesToKeep.size());
   const int inputFeatDim(input.features.cols());
@@ -398,9 +398,9 @@ void GestaltDataPointsFilter<T>::fuseRange(
 
     const Vector mean = d.rowwise().sum() / T(colCount);
     const Matrix NN = d.colwise() - mean;
-    const boost::int64_t minTime = t.minCoeff();
-    const boost::int64_t maxTime = t.maxCoeff();
-    const boost::int64_t meanTime = t.sum() / T(colCount);
+    const std::int64_t minTime = t.minCoeff();
+    const std::int64_t maxTime = t.maxCoeff();
+    const std::int64_t meanTime = t.sum() / T(colCount);
     // compute covariance
     const Matrix C(NN * NN.transpose());
     Vector eigenVa = Vector::Identity(featDim-1, 1);

@@ -57,15 +57,18 @@ struct TransformationCheckersImpl
 	
 	struct CounterTransformationChecker: public TransformationChecker
 	{
+		//! Struct used to inform through an exeption that ICP reached max number of iterations
+		struct MaxNumIterationsReached {};
+
 		inline static const std::string description()
 		{
 			return "This checker stops the ICP loop after a certain number of iterations.";
 		}
 		inline static const ParametersDoc availableParameters()
 		{
-			return boost::assign::list_of<ParameterDoc>
-				( "maxIterationCount", "maximum number of iterations ", "40", "0", "2147483647", &P::Comp<unsigned> )
-			;
+			return {
+				{"maxIterationCount", "maximum number of iterations ", "40", "0", "2147483647", &P::Comp<unsigned>}
+			};
 		}
 		
 		const unsigned maxIterationCount;
@@ -83,11 +86,11 @@ struct TransformationCheckersImpl
 		}
 		inline static const ParametersDoc availableParameters()
 		{
-			return boost::assign::list_of<ParameterDoc>
-				( "minDiffRotErr", "threshold for rotation error (radian)", "0.001", "0.", "6.2831854", &P::Comp<T> )
-				( "minDiffTransErr", "threshold for translation error", "0.001", "0.", "inf", &P::Comp<T> )
-				( "smoothLength", "number of iterations over which to average the differencial error", "3", "0", "2147483647", &P::Comp<unsigned> )
-			;
+			return {
+				{"minDiffRotErr", "threshold for rotation error (radian)", "0.001", "0.", "6.2831854", &P::Comp<T>},
+				{"minDiffTransErr", "threshold for translation error", "0.001", "0.", "inf", &P::Comp<T>},
+				{"smoothLength", "number of iterations over which to average the differencial error", "3", "0", "2147483647", &P::Comp<unsigned>}
+			};
 		}
 		
 		const T minDiffRotErr;
@@ -113,10 +116,10 @@ struct TransformationCheckersImpl
 		}
 		inline static const ParametersDoc availableParameters()
 		{
-			return boost::assign::list_of<ParameterDoc>
-				( "maxRotationNorm", "rotation bound", "1", "0", "inf", &P::Comp<T> )
-				( "maxTranslationNorm", "translation bound", "1", "0", "inf", &P::Comp<T> )
-			;
+			return {
+				{"maxRotationNorm",    "rotation bound",    "1", "0", "inf", &P::Comp < T > },
+				{"maxTranslationNorm", "translation bound", "1", "0", "inf", &P::Comp < T > }
+			};
 		}
 			
 		const T maxRotationNorm;

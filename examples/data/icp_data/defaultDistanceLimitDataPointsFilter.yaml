@@ -1,19 +1,26 @@
 readingDataPointsFilters:
+  - DistanceLimitDataPointsFilter:
+      dist: 200
+      removeInside: 0
 
 referenceDataPointsFilters:
+  - SamplingSurfaceNormalDataPointsFilter:
+      knn: 10
+      ratio: 0.666666
+      samplingMethod: 1
+      averageExistingDescriptors: 0
 
 matcher:
   KDTreeMatcher:
-    knn: 10
+    knn: 1
     epsilon: 0 
 
 outlierFilters:
-  - RobustWelschOutlierFilter:
-      scale: 1.5
-      approximation: 1.5
+  - TrimmedDistOutlierFilter:
+      ratio: 0.75
 
 errorMinimizer:
-  PointToPointErrorMinimizer
+  PointToPlaneErrorMinimizer
 
 transformationCheckers:
   - CounterTransformationChecker:
@@ -25,10 +32,7 @@ transformationCheckers:
       
 inspector:
   NullInspector
-#  VTKFileInspector:
-#    dumpDataLinks: 1
-#    dumpReading: 1
-#    dumpReference: 1
+#  VTKFileInspector
 
 logger:
   NullLogger

@@ -37,7 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace std;
 using namespace PointMatcherSupport;
-using boost::assign::map_list_of;
 
 // TODO: avoid global by using testing::Environment
 
@@ -93,6 +92,7 @@ TEST(icpTest, icpTest)
 	{
 		if (!fs::is_regular_file(d->status()) ) continue;
 
+		std::cout << "Testing file " << d->path().string() << std::endl;
 		// Load config file, and form ICP object
 		PM::ICP icp;
 		std::string config_file = d->path().string();
@@ -201,6 +201,7 @@ TEST(icpTest, icpIdentity)
 {
 	// Here we test point-to-plane ICP where we expect the output transform to be 
 	// the identity. This situation requires special treatment in the algorithm.
+	const float epsilon = 0.0001;
 	
 	DP pts0 = DP::load(dataPath + "cloud.00000.vtk");
 	DP pts1 = DP::load(dataPath + "cloud.00000.vtk");
@@ -214,8 +215,8 @@ TEST(icpTest, icpIdentity)
 
 	// Compute current ICP transform
 	PM::TransformationParameters curT = icp(pts0, pts1);
-    
-	EXPECT_EQ(curT, PM::Matrix::Identity(4,4)) << "Expecting identity transform." << endl;
+
+	EXPECT_TRUE(curT.isApprox(PM::Matrix::Identity(4, 4), epsilon)) << "Expecting identity transform." << endl;
 }
 
 TEST(icpTest, similarityTransform)
@@ -247,7 +248,7 @@ TEST(icpTest, icpSequenceTest)
 	DP pts1 = DP::load(dataPath + "cloud.00001.vtk");
 	DP pts2 = DP::load(dataPath + "cloud.00002.vtk");
 	
-	PM::TransformationParameters Ticp   = PM::Matrix::Identity(4,4);
+	PM::TransformationParameters Ticp = PM::Matrix::Identity(4,4);
 
 	PM::ICPSequence icpSequence;
 

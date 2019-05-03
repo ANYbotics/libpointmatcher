@@ -12,7 +12,7 @@ using namespace PointMatcherSupport;
 class TransformationCheckerTest: public IcpHelper
 {
 public:
-	PM::TransformationChecker* transformCheck;
+	std::shared_ptr<PM::TransformationChecker> transformCheck;
 
 	// Will be called for every tests
 	virtual void SetUp()
@@ -39,16 +39,17 @@ public:
 
 TEST_F(TransformationCheckerTest, CounterTransformationChecker)
 {
-	addFilter("CounterTransformationChecker", map_list_of ("maxIterationCount", toParam(20)) );
+	addFilter("CounterTransformationChecker", {{"maxIterationCount", toParam(20)}});
 	validate2dTransformation();
 }
 
 TEST_F(TransformationCheckerTest, DifferentialTransformationChecker)
 {
-	addFilter("DifferentialTransformationChecker", map_list_of
-		("minDiffRotErr", toParam(0.001))
-		("minDiffTransErr", toParam(0.001))
-		("smoothLength", toParam(4))
+	addFilter("DifferentialTransformationChecker", {
+			{"minDiffRotErr", toParam(0.001)},
+			{"minDiffTransErr", toParam(0.001)},
+			{"smoothLength", toParam(4)}
+		}
 	);
 	validate2dTransformation();
 }
@@ -58,16 +59,17 @@ TEST_F(TransformationCheckerTest, BoundTransformationChecker)
 	// Since that transChecker is trigger when the distance is growing
 	// and that we do not expect that to happen in the test dataset, we
 	// keep the Counter to get out of the looop	
-	PM::TransformationChecker* extraTransformCheck;
+	std::shared_ptr<PM::TransformationChecker> extraTransformCheck;
 	
 	extraTransformCheck = PM::get().TransformationCheckerRegistrar.create(
 		"CounterTransformationChecker"
 	);
 	icp.transformationCheckers.push_back(extraTransformCheck);
 	
-	addFilter("BoundTransformationChecker", map_list_of
-		("maxRotationNorm", toParam(1.0))
-		("maxTranslationNorm", toParam(1.0))
+	addFilter("BoundTransformationChecker", {
+			{"maxRotationNorm", toParam(1.0)},
+			{"maxTranslationNorm", toParam(1.0)}
+		}
 	);
 	validate2dTransformation();
 }
@@ -77,7 +79,7 @@ TEST_F(TransformationCheckerTest, BoundTransformationChecker)
 //---------------------------
 TEST(Transformation, RigidTransformation)
 {
-	PM::Transformation* rigidTrans;
+	std::shared_ptr<PM::Transformation> rigidTrans;
 	rigidTrans = PM::get().REG(Transformation).create("RigidTransformation");
 
 	//-------------------------------------
@@ -103,20 +105,27 @@ TEST(Transformation, RigidTransformation)
 
 	//-------------------------------------
 	// Construct a 2D non-orthogonal matrix
-	PM::Matrix T_2D = PM::Matrix::Identity(3,3);
-	T_2D(1,0) = 8.99;
-	T_2D(0,1) = 4.03;
+	PM::Matrix T_2D_non_ortho = PM::Matrix::Identity(3,3);
+	T_2D_non_ortho(0,0) = 0.8;
+	T_2D_non_ortho(0,1) = -0.5;
+	T_2D_non_ortho(1,0) = 0.5;
+	T_2D_non_ortho(1,1) = 0.8;
 
-	EXPECT_FALSE(rigidTrans->checkParameters(T_2D));
+	EXPECT_FALSE(rigidTrans->checkParameters(T_2D_non_ortho));
 
-	EXPECT_THROW(rigidTrans->compute(data2D, T_2D), TransformationError);
+	EXPECT_THROW(rigidTrans->compute(data2D, T_2D_non_ortho), TransformationError);
 
 	// Check stability over iterations
 	for(int i = 0; i < 10; i++)
 	{
-		T_2D = rigidTrans->correctParameters(T_2D);
-		EXPECT_TRUE(rigidTrans->checkParameters(T_2D));
+		T_2D_non_ortho = rigidTrans->correctParameters(T_2D_non_ortho);
+		EXPECT_TRUE(rigidTrans->checkParameters(T_2D_non_ortho));
 	}
 
-	delete rigidTrans;
+	//-------------------------------------
+	// Construct a 2D reflection matrix
+	PM::Matrix T_2D_reflection = PM::Matrix::Identity(3,3);
+	T_2D_reflection(1,1) = -1;
+
+	EXPECT_THROW(rigidTrans->correctParameters(T_2D_reflection), TransformationError);
 }

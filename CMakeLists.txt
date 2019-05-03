@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8.11)
 
 include(CheckSymbolExists)
 
@@ -67,8 +67,10 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 # For Windows
-if( MSVC ) # VS2012 does not support tuples correctly yet
-	add_definitions( /D _VARIADIC_MAX=10 )
+if( MSVC )
+	add_definitions( /D _VARIADIC_MAX=10 ) # VS2012 does not support tuples correctly yet
+	add_definitions( /D _USE_MATH_DEFINES) # defines M_PI for Visual Studio
+	add_definitions( /D _ENABLE_EXTENDED_ALIGNED_STORAGE) # this variable must be defined with VS2017 to acknowledge alignment changes of aligned_storage
 endif()
 
 #======================= installation =====================================
@@ -128,12 +130,13 @@ find_path(EIGEN_INCLUDE_DIR Eigen/Core
 	/usr/local/include/eigen3
 	/usr/include/eigen3
 )
-include_directories(${EIGEN_INCLUDE_DIR})
-#note: no library to add, eigen rely only on headers
+
+# Suppress Eigen's warning by adding it to the system's library
+include_directories(SYSTEM "${EIGEN_INCLUDE_DIR}")
 
 #TODO: this should be a more standard way
 #find_package(Eigen3 REQUIRED)
-#message("-- eigen3 found, version ${Eigen3_VERSION}")
+#message("-- eigen3 , version ${EIGEN_VERSION}")
 
 
 
@@ -146,6 +149,21 @@ include_directories(${libnabo_INCLUDE_DIRS})
 set(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${libnabo_LIBRARIES})
 message(STATUS "libnabo found, version ${libnabo_VERSION} (include=${libnabo_INCLUDE_DIRS} libs=${libnabo_LIBRARIES})")
 
+#--------------------
+# DEPENDENCY: OpenMP (optional)
+#--------------------
+set(USE_OPEN_MP FALSE CACHE BOOL "Set to TRUE to use OpenMP")
+if (USE_OPEN_MP)
+	find_package(OpenMP)
+	if (OPENMP_FOUND)
+		add_definitions(-fopenmp -DHAVE_OPENMP)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+		if (CMAKE_COMPILER_IS_GNUCC)
+			set(EXTERNAL_LIBS ${EXTERNAL_LIBS} gomp)
+    	message("-- OpenMP found, parallel computer enabled")
+		endif(CMAKE_COMPILER_IS_GNUCC)
+	endif(OPENMP_FOUND)
+endif (USE_OPEN_MP)
 
 #--------------------
 # DEPENDENCY: OpenCL (optional)
@@ -286,13 +304,16 @@ set(POINTMATCHER_SRC
 	pointmatcher/LoggerImpl.cpp
 	pointmatcher/MatchersImpl.cpp
 	pointmatcher/OutlierFiltersImpl.cpp
-	pointmatcher/ErrorMinimizersImpl.cpp
 	pointmatcher/TransformationsImpl.cpp
 	pointmatcher/TransformationCheckersImpl.cpp
 	pointmatcher/InspectorsImpl.cpp
 #ErrorMinimizers
 	pointmatcher/ErrorMinimizers/PointToPlane.cpp
 	pointmatcher/ErrorMinimizers/PointToPlaneWithCov.cpp
+	pointmatcher/ErrorMinimizers/PointToPoint.cpp
+	pointmatcher/ErrorMinimizers/PointToPointWithCov.cpp
+	pointmatcher/ErrorMinimizers/PointToPointSimilarity.cpp
+	pointmatcher/ErrorMinimizers/Identity.cpp
 #DataPointsFilters	
 	pointmatcher/DataPointsFilters/Identity.cpp
 	pointmatcher/DataPointsFilters/RemoveNaN.cpp
@@ -317,25 +338,24 @@ set(POINTMATCHER_SRC
 	pointmatcher/DataPointsFilters/Gestalt.cpp
 	pointmatcher/DataPointsFilters/OctreeGrid.cpp
 	pointmatcher/DataPointsFilters/NormalSpace.cpp
-	pointmatcher/DataPointsFilters/CovarianceSampling.cpp	
+	pointmatcher/DataPointsFilters/CovarianceSampling.cpp
+	pointmatcher/DataPointsFilters/DistanceLimit.cpp
+	pointmatcher/DataPointsFilters/RemoveSensorBias.cpp
 )
 
 include_directories(${CMAKE_SOURCE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/pointmatcher)
-include_directories(${CMAKE_SOURCE_DIR}/pointmatcher/DataPointsFilters)
-include_directories(${CMAKE_SOURCE_DIR}/pointmatcher/DataPointsFilters/utils)
 
 
 file(GLOB_RECURSE POINTMATCHER_HEADERS "pointmatcher/*.h")
 
-# MacOS deals with shared/dynamic library differently. For
-# simplicity, we only authorize static library in that case.
-if(APPLE)
+# MacOS and Windows deal with shared/dynamic library differently. For
+# simplicity, we only authorize static library in those cases.
+if(APPLE OR WIN32)
 
 	add_library(pointmatcher ${POINTMATCHER_SRC} ${POINTMATCHER_HEADERS} )
 	install(TARGETS pointmatcher ARCHIVE DESTINATION ${INSTALL_LIB_DIR})
 
-else(APPLE)
+else(APPLE OR WIN32)
 	set(SHARED_LIBS "true" CACHE BOOL "To build shared (true) or static (false) library")
 
 	if (SHARED_LIBS)
@@ -349,8 +369,11 @@ else(APPLE)
 		add_library(pointmatcher ${POINTMATCHER_SRC} ${POINTMATCHER_HEADERS} )
 		install(TARGETS pointmatcher ARCHIVE DESTINATION ${INSTALL_LIB_DIR})
 	endif(SHARED_LIBS)
-endif(APPLE)
+endif(APPLE OR WIN32)
 
+target_include_directories(pointmatcher PRIVATE ${CMAKE_SOURCE_DIR}/pointmatcher)
+target_include_directories(pointmatcher PRIVATE ${CMAKE_SOURCE_DIR}/pointmatcher/DataPointsFilters)
+target_include_directories(pointmatcher PRIVATE ${CMAKE_SOURCE_DIR}/pointmatcher/DataPointsFilters/utils)
 
 # link all libraries to libpointmatcher
 add_definitions(-Wall)

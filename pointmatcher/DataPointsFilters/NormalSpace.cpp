@@ -38,6 +38,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <unordered_map>
 #include <random>
+#include <ciso646>
+#include <cmath>
 
 // NormalSpaceDataPointsFilter
 template <typename T>
@@ -87,7 +89,7 @@ void NormalSpaceDataPointsFilter<T>::inPlaceFilter(DataPoints& cloud)
 	std::mt19937 gen(seed); //Standard mersenne_twister_engine seeded with seed
 
 	//bucketed normal space
-	std::vector<std::vector<int>> idBuckets; //stock int so we can marked selected with -1
+	std::vector<std::vector<int> > idBuckets; //stock int so we can marked selected with -1
 	idBuckets.resize(nbBucket);
 
 	std::vector<std::size_t> keepIndexes;

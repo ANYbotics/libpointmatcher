@@ -52,7 +52,8 @@ struct OutlierFiltersImpl
 	typedef typename PointMatcher<T>::Matches Matches;
 	typedef typename PointMatcher<T>::OutlierFilter OutlierFilter;
 	typedef typename PointMatcher<T>::OutlierWeights OutlierWeights;
-	typedef typename PointMatcher<T>::Matrix Matrix;	
+	typedef typename PointMatcher<T>::Matrix Matrix;
+	typedef typename PointMatcher<T>::Array Array;
 	typedef typename PointMatcher<T>::Vector Vector;
 	
 	struct NullOutlierFilter: public OutlierFilter
@@ -61,7 +62,8 @@ struct OutlierFiltersImpl
 		{
 			return "Does nothing.";
 		}
-		
+
+		NullOutlierFilter() : OutlierFilter("NullOutlierFilter",  ParametersDoc(), Parameters()) {}
 		virtual OutlierWeights compute(const DataPoints& filteredReading, const DataPoints& filteredReference, const Matches& input);
 	};
 
@@ -73,9 +75,9 @@ struct OutlierFiltersImpl
 		}
 		inline static const ParametersDoc availableParameters()
 		{
-			return boost::assign::list_of<ParameterDoc>
-				( "maxDist", "threshold distance (Euclidean norm)", "1", "0.0000001", "inf", &P::Comp<T>) 
-			;
+			return {
+				{"maxDist", "threshold distance (Euclidean norm)", "1", "0.0000001", "inf", &P::Comp<T>}
+			};
 		}
 		
 		const T maxDist;
@@ -93,9 +95,9 @@ struct OutlierFiltersImpl
 		}
 		inline static const ParametersDoc availableParameters()
 		{
-			return boost::assign::list_of<ParameterDoc>
-				( "minDist", "threshold distance (Euclidean norm)", "1", "0.0000001", "inf", &P::Comp<T>) 
-			;
+			return {
+				{"minDist","threshold distance (Euclidean norm)", "1", "0.0000001", "inf", &P::Comp<T> }
+			};
 		}
 		
 		const T minDist;
@@ -112,9 +114,9 @@ struct OutlierFiltersImpl
 		}
 		inline static const ParametersDoc availableParameters()
 		{
-			return boost::assign::list_of<ParameterDoc>
-				( "factor", "points farther away factor * median will be considered outliers.", "3", "0.0000001", "inf", &P::Comp<T>)
-			;
+			return {
+				{"factor","points farther away factor * median will be considered outliers.", "3", "0.0000001", "inf", &P::Comp <T>}
+			};
 		}
 		
 		const T factor;
@@ -131,9 +133,9 @@ struct OutlierFiltersImpl
 		}
 		inline static const ParametersDoc availableParameters()
 		{
-			return boost::assign::list_of<ParameterDoc>
-				( "ratio", "percentage to keep", "0.85", "0.0000001", "1.0", &P::Comp<T>)
-			;
+			return {
+				{"ratio", "percentage to keep", "0.85", "0.0000001", "1.0", &P::Comp<T>}
+			};
 		}
 		
 		const T ratio;
@@ -150,11 +152,11 @@ struct OutlierFiltersImpl
 		}
 		inline static const ParametersDoc availableParameters()
 		{
-			return boost::assign::list_of<ParameterDoc>
-				( "minRatio", "min ratio", "0.05", "0.0000001", "1", &P::Comp<T>)
-				( "maxRatio", "max ratio", "0.99", "0.0000001", "1", &P::Comp<T>)
-				( "lambda", "lambda (part of the term that balance the rmsd: 1/ratio^lambda", "0.95" )
-			;
+			return {
+				{"minRatio", "min ratio", "0.05","0.0000001", "1", &P::Comp<T>},
+				{"maxRatio", "max ratio", "0.99", "0.0000001", "1", &P::Comp<T>},
+				{"lambda", "lambda (part of the term that balance the rmsd: 1/ratio^lambda", "2.35"}
+			};
 		}
 
 		const T minRatio;
@@ -179,9 +181,9 @@ struct OutlierFiltersImpl
 		}
 		inline static const ParametersDoc availableParameters()
 		{
-			return boost::assign::list_of<ParameterDoc>
-				( "maxAngle", "Maximum authorised angle between the 2 surface normals (in radian)", "1.57", "0.0", "3.1416", &P::Comp<T>)
-			;
+			return {
+				{"maxAngle", "Maximum authorised angle between the 2 surface normals (in radian)", "1.57", "0.0", "3.1416", &P::Comp<T>}
+			};
 		}
 
 		const T eps;
@@ -199,13 +201,13 @@ struct OutlierFiltersImpl
 		}
 		inline static const ParametersDoc availableParameters()
 		{
-			return boost::assign::list_of<ParameterDoc>
-				( "source", "Point cloud from which the descriptor will be used: reference or reading", "reference")
-				( "descName", "Descriptor name used to weight paired points", "none")
-				( "useSoftThreshold", "If set to 1 (true), uses the value of the descriptor as a weight. If set to 0 (false), uses the parameter 'threshold' to set binary weights.", "0", "0", "1", P::Comp<bool>)
-				( "useLargerThan", "If set to 1 (true), values over the 'threshold' will have a weight of one.  If set to 0 (false), values under the 'threshold' will have a weight of one. All other values will have a weight of zero.", "1", "0", "1", P::Comp<bool>)
-				( "threshold", "Value used to determine the binary weights", "0.1", "0.0000001", "inf", &P::Comp<T>)
-				;
+			return {
+				{ "source", "Point cloud from which the descriptor will be used: reference or reading", "reference"},
+				{ "descName", "Descriptor name used to weight paired points", "none"},
+				{ "useSoftThreshold", "If set to 1 (true), uses the value of the descriptor as a weight. If set to 0 (false), uses the parameter 'threshold' to set binary weights.", "0", "0", "1", P::Comp<bool>},
+				{ "useLargerThan", "If set to 1 (true), values over the 'threshold' will have a weight of one.  If set to 0 (false), values under the 'threshold' will have a weight of one. All other values will have a weight of zero.", "1", "0", "1", P::Comp<bool>},
+				{ "threshold", "Value used to determine the binary weights", "0.1", "0.0000001", "inf", &P::Comp<T>}
+			};
 		}
 		
 		const std::string source;
@@ -218,25 +220,61 @@ struct OutlierFiltersImpl
 		virtual OutlierWeights compute(const DataPoints& filteredReading, const DataPoints& filteredReference, const Matches& input);
 	};
 
-	struct RobustWelschOutlierFilter: public OutlierFilter
+	struct RobustOutlierFilter: public OutlierFilter
 	{
+
 		inline static const std::string description()
 		{
-			return "Robust weight function part of the M-Estimator familly. The Welsch weight uses an exponential decay reducing the influence of matched point farther away \\cite{RobustWeightFunctions}. More explicitly, the function is w = exp[- (matched distance)^2/scale^2].";
+			return "Robust weight function. 8 robust functions to choose from (Cauchy, Welsch, Switchable Constraint, Geman-McClure, Tukey, Huber, L1 and Student). All the functions are M-Estimator (\\cite{RobustWeightFunctions}) except L1 and Student.";
 		}
 		inline static const ParametersDoc availableParameters()
 		{
-			return boost::assign::list_of<ParameterDoc>
-				( "scale", "Tuning parameter used to limit the influence of outliers. It could be interpreted as a standard deviation. The unit of this parameter is the same as the distance used, typically meters.", "5.0", "0.0000001", "inf", &P::Comp<T>)
-				( "approximation", "If the matched distance is larger than this threshold, its weight will be forced to zero. This can save computation as zero values are not minimized. If set to inf (default value), no approximation is done. The unit of this parameter is the same as the distance used, typically meters.", "inf", "0.0", "inf", &P::Comp<T>)
-				;
+			return {
+				{"robustFct", "Type of robust function used. Available fct: 'cauchy', 'welsch', 'sc'(aka Switchable-Constraint), 'gm' (aka Geman-McClure), 'tukey', 'huber' and 'L1'. (Default: cauchy)", "cauchy"},
+				{"tuning", "Tuning parameter used to limit the influence of outliers."
+				  "If the 'scaleEstimator' is 'mad' or 'none', this parameter acts as the tuning parameter."
+				  "If the 'scaleEstimator' is 'berg' this parameter acts as the target scale (σ*).", "1.0", "0.0000001", "inf", &P::Comp<T>},
+				{"scaleEstimator", "The scale estimator is used to convert the error distance into a Mahalanobis distance. 3 estimators are available: "
+				  "'none': no estimator (scale = 1), "
+				  "'mad': use the median of absolute deviation (a kind of robust standard deviation), "
+				  "'berg': an iterative exponentially decreasing estimator", "mad"},
+				{"nbIterationForScale", "For how many iteration the 'scaleEstimator' is recalculated. After 'nbIterationForScale' iteration the previous scale is kept. A nbIterationForScale==0 means that the estiamtor is recalculated at each iteration.", "0", "0", "100", &P::Comp<int>},
+				{"distanceType", "Type of error distance used, either point to point ('point2point') or point to plane('point2plane'). Point to point gives better result normally.", "point2point"},
+				{"approximation", "If the matched distance is larger than this threshold, its weight will be forced to zero. This can save computation as zero values are not minimized. If set to inf (default value), no approximation is done. The unit of this parameter is the same as the distance used, typically meters.", "inf", "0.0", "inf", &P::Comp<T>}
+			};
 		}
-		
-		const T squaredScale;
-		const T squaredApproximation;
-		
-		RobustWelschOutlierFilter(const Parameters& params = Parameters());
+
+		Matrix computePointToPlaneDistance(const DataPoints& filteredReading, const DataPoints& filteredReference, const Matches& input);
 		virtual OutlierWeights compute(const DataPoints& filteredReading, const DataPoints& filteredReference, const Matches& input);
+		RobustOutlierFilter(const std::string& className, const ParametersDoc paramsDoc, const Parameters& params);
+		RobustOutlierFilter(const Parameters& params = Parameters());
+		protected:
+		enum RobustFctId {
+			Cauchy=0,
+			Welsch=1,
+			SwitchableConstraint=2,
+			GM=3,
+			Tukey=4,
+			Huber=5,
+			L1=6,
+			Student=7
+		};
+		typedef std::map<std::string, RobustFctId> RobustFctMap;
+		static RobustFctMap robustFcts;
+		const std::string robustFctName;
+		T tuning;
+		const T squaredApproximation;
+		const std::string scaleEstimator;
+		const int nbIterationForScale;
+		const std::string distanceType;
+		int robustFctId;
+		int iteration;
+		T scale;
+		T berg_target_scale;
+
+
+		virtual void resolveEstimatorName();
+		virtual OutlierWeights robustFiltering(const DataPoints& filteredReading, const DataPoints& filteredReference, const Matches& input);
 	};
 
 }; // OutlierFiltersImpl

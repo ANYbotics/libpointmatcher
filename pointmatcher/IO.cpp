@@ -747,7 +747,7 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadCSV(std::istream& is
 						descriptors(matrixRow, matrixCol) = lexical_cast_scalar_to_string<T>(token);
 						break;
 					case TIME:
-						times(matrixRow, matrixCol) = lexical_cast_scalar_to_string<boost::int64_t>(token);
+						times(matrixRow, matrixCol) = lexical_cast_scalar_to_string<std::int64_t>(token);
 						break;
 					default:
 						throw runtime_error(string("CSV parse error: encounter a type different from FEATURE, DESCRIPTOR and TIME. Implementation not supported. See the definition of 'enum PMPropTypes'"));
@@ -909,7 +909,7 @@ void PointMatcherIO<double>::saveCSV(const DataPoints& data, const std::string& 
 template<typename T>
 typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadVTK(const std::string& fileName)
 {
-	ifstream ifs(fileName.c_str());
+	ifstream ifs(fileName.c_str(), std::ios::binary);
 	if (!ifs.good())
 		throw runtime_error(string("Cannot open file ") + fileName);
 	return loadVTK(ifs);
@@ -933,13 +933,13 @@ void skipBlock(bool binary, int binarySize, std::istream & is, bool hasSeparateS
 	}
 
 	std::string line;
-	getline(is, line); // remove line end after parameters;
+	safeGetLine(is, line); // remove line end after parameters;
 	if(binary){
 		is.seekg(size * binarySize, std::ios_base::cur);
 	} else {
 		for (int p = 0; p < n; p++)
 		{
-			getline(is, line);
+			safeGetLine(is, line);
 		}
 	}
 }
@@ -954,11 +954,11 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadVTK(std::istream& is
 
 	// parse header
 	string line;
-	getline(is, line);
+	safeGetLine(is, line);
 	if (line.find("# vtk DataFile Version") != 0)
 		throw runtime_error(string("Wrong magic header, found ") + line);
-	getline(is, line);
-	getline(is, line);
+	safeGetLine(is, line);
+	safeGetLine(is, line);
 
 	const bool isBinary = (line == "BINARY");
 	if (line != "ASCII"){
@@ -966,7 +966,7 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadVTK(std::istream& is
 			throw runtime_error(string("Wrong file type, expecting ASCII or BINARY, found ") + line);
 		}
 	}
-	getline(is, line);
+	safeGetLine(is, line);
 
 	SupportedVTKDataTypes dataType;
 	if (line == "DATASET POLYDATA")
@@ -986,13 +986,12 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadVTK(std::istream& is
 	
 	while (is >> fieldName)
 	{
-
 		// load features
 		if(fieldName == "POINTS")
 		{
 			is >> pointCount;
 			is >> type;
-			getline(is, line); // remove line end after parameters!
+			safeGetLine(is, line); // remove line end after parameters!
 
 			if(!(type == "float" || type == "double"))
 					throw runtime_error(string("Field POINTS can only be of type double or float"));
@@ -1085,6 +1084,15 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadVTK(std::istream& is
 				loadedPoints.addDescriptor(name, descriptor);
 			}
 		}
+		else if(fieldName == "METADATA") // Skip METADATA block
+		{
+			safeGetLine(is, line);
+			safeGetLine(is, line);
+			while(!line.empty())
+			{
+				safeGetLine(is, line);
+			}
+		}
 		else // Load descriptors or time
 		{
 
@@ -1141,7 +1149,7 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadVTK(std::istream& is
 				throw runtime_error(string("Unknown field name " + fieldName + ", expecting SCALARS, VECTORS, TENSORS, NORMALS or COLOR_SCALARS."));
 
 			
-			getline(is, line); // remove rest of the parameter line including its line end;
+			safeGetLine(is, line); // remove rest of the parameter line including its line end;
 
 			
 			// Load time data
@@ -1150,7 +1158,7 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadVTK(std::istream& is
 				// Skip LOOKUP_TABLE line
 				if(skipLookupTable)
 				{
-					getline(is, line);
+					safeGetLine(is, line);
 				}
 				
 				typename std::map<std::string, SplitTime>::iterator it;
@@ -1204,7 +1212,7 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadVTK(std::istream& is
 					// Skip LOOKUP_TABLE line
 					if(skipLookupTable)
 					{
-						getline(is, line);
+						safeGetLine(is, line);
 					}
 					readVtkData(type, isBinary, descriptorData.transpose(), is);
 				}
@@ -1233,7 +1241,7 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadVTK(std::istream& is
 		for(int i=0; i<it->second.high32.cols(); i++)
 		{
 		
-			timeData(0,i) = (((boost::int64_t) it->second.high32(0,i)) << 32) | ((boost::int64_t) it->second.low32(0,i));
+			timeData(0,i) = (((std::int64_t) it->second.high32(0,i)) << 32) | ((std::int64_t) it->second.low32(0,i));
 		}
 
 		loadedPoints.addTime(it->first, timeData);
@@ -1335,7 +1343,7 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPLY(std::istream& 
 	bool skip_props = false; // flag to skip properties if element is not supported
 	unsigned elem_offset = 0; // keep track of line position of elements that are supported
 	string line;
-	getline(is, line);
+	safeGetLine(is, line);
 
 	if (line.find("ply") != 0) {
 		throw runtime_error(string("PLY parse error: wrong magic header, found <") + line + string(">"));
@@ -1343,7 +1351,7 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPLY(std::istream& 
 
 	while (!header_processed)
 	{
-		if(!getline(is, line))
+		if(!safeGetLine(is, line))
 			throw runtime_error("PLY parse error: reached end of file before end of header definition");
 
 
@@ -2196,7 +2204,7 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPCD(std::istream& 
 						descriptors(row+j, col) = boost::lexical_cast<T>(tokens[fileCol]);
 						break;
 					case TIME:
-						times(row+j, col) = boost::lexical_cast<boost::int64_t>(tokens[fileCol]);
+						times(row+j, col) = boost::lexical_cast<std::int64_t>(tokens[fileCol]);
 						break;
 					case UNSUPPORTED:
 						throw runtime_error("Implementation error in loadPCD(). This should not throw.");

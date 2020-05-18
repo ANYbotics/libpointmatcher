@@ -17,14 +17,14 @@ If you are used to development projects, here is what you need:
 | _Dependency:_|  |  |
 |boost          | 1.48.0.2             | 1.54.0                 | 1.65.1 |
 |eigen          | 3.0.5                | 3.2.0-8                | 3.3.4-4 |
-|libnabo        | [from source](https://github.com/ethz-asl/libnabo) | [from source](https://github.com/ethz-asl/libnabo) | [from source](https://github.com/ethz-asl/libnabo) |
+|libnabo        | [from source](https://github.com/anybotics/libnabo) | [from source](https://github.com/anybotics/libnabo) | [from source](https://github.com/anybotics/libnabo) |
 
 __Note:__ we only support 64-bit systems because of some issues with Eigen. Other versions will most probably work but you'll have to try yourself to know for sure.
 
 The rest of this tutorial will guide you through the different requirements step by step.
 
-## Detailed Installation Instructions 
-### Some Basic Requirements 
+## Detailed Installation Instructions
+### Some Basic Requirements
 
 #### a. Installing Boost
 [Boost](www.boost.org) is a widely-used C++ library and is included in most Linux distributions.  You can quickly check if Boost is installed on your system by running
@@ -47,7 +47,7 @@ sudo apt-get install libboost-all-dev
 Git should already be installed on your system but you can check if it is by running
 
 ```
-git --version 
+git --version
 ```
 
 If Git is installed, you should see a message of the form
@@ -81,13 +81,13 @@ sudo apt-get install libeigen3-dev
 ```
 
 ### 2. Installing libnabo
-libnabo is a library for performing fast nearest-neighbor searches in low-dimensional spaces.  It can be found [here](https://github.com/ethz-asl/libnabo).  Clone the source repository into a local directory of your choice.
+libnabo is a library for performing fast nearest-neighbor searches in low-dimensional spaces.  It can be found [here](https://github.com/anybotics/libnabo).  Clone the source repository into a local directory of your choice.
 ```
 mkdir ~/Libraries/
 cd ~/Libraries
-git clone git://github.com/ethz-asl/libnabo.git
+git clone git://github.com/anybotics/libnabo.git
 cd libnabo
-``` 
+```
 
 Now you can compile libnabo by entering the following commands
 ```
@@ -134,7 +134,7 @@ Clone the source repository into a local directory.  As an example we reuse the 
 
 ```
 cd ~/Libraries/
-git clone git://github.com/ethz-asl/libpointmatcher.git
+git clone git://github.com/anybotics/libpointmatcher.git
 cd libpointmatcher
 ```
 Now, libpointmatcher is compiled into a `/build` directory.
@@ -183,11 +183,11 @@ sudo make install
 ```
 
 # Having problems?
-Some dependencies changed and we don't keep track of all combinations possible. Before reporting a problem, make sure to include the versions you are using. You can run the bash script `./utest/listVersionsUbuntu.sh` and copy-paste its output when [reporting an issue on github](https://github.com/ethz-asl/libpointmatcher/issues). You may need to ensure that the file is executable:
+Some dependencies changed and we don't keep track of all combinations possible. Before reporting a problem, make sure to include the versions you are using. You can run the bash script `./utest/listVersionsUbuntu.sh` and copy-paste its output when [reporting an issue on github](https://github.com/anybotics/libpointmatcher/issues). You may need to ensure that the file is executable:
 
 ```
-chmod +x ./utest/listVersionsUbuntu.sh 
-./utest/listVersionsUbuntu.sh 
+chmod +x ./utest/listVersionsUbuntu.sh
+./utest/listVersionsUbuntu.sh
 ```
 
 
@@ -208,7 +208,7 @@ Compiler version:
 Git version:
 
     git --version
-  
+
 CMake:
 
     cmake --version
@@ -216,7 +216,7 @@ CMake:
 Boost version:
 
     dpkg -s libboost-dev | grep Version
-    
+
 Eigen3:
 
     dpkg -s libeigen3-dev | grep Version

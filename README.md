@@ -10,7 +10,7 @@ libpointmatcher is a modular library implementing the Iterative Closest Point (I
 
 **Quick link for the tutorial pages: [Tutorials](doc/index.md) (also available on [readthedocs.org](http://libpointmatcher.readthedocs.org/)).**
 
-Those tutorials are written using Markdown syntax and stored in the project's `/doc` folder.  Their scope ranges from introductory material on performing point cloud registration to instructions for the more experienced developer on how to extend the library's codebase. 
+Those tutorials are written using Markdown syntax and stored in the project's `/doc` folder.  Their scope ranges from introductory material on performing point cloud registration to instructions for the more experienced developer on how to extend the library's codebase.
 
 Libpointmatcher's source code is fully documented based on doxygen to provide an easy API to developers. An example of this API can be found [here](https://norlab.ulaval.ca/libpointmatcher-doc/), but it is suggested to use the one build for your version in `doc/html`. 
 
@@ -28,13 +28,13 @@ The library has a light dependency list:
  * [Eigen] version 3, a modern C++ matrix and linear-algebra library,
  * [boost] version 1.48 and up, portable C++ source libraries,
  * [libnabo] version 1.0.7, a fast K Nearest Neighbour library for low-dimensional spaces,
- 
+
 and was compiled on:
   * Ubuntu ([see how](/doc/Compilation.md))
   * Mac OS X ([see how](/doc/CompilationMac.md))
   * Windows ([see how](/doc/CompilationWindows.md) - partially supported)
 
-### Compilation & Installation 
+### Compilation & Installation
 
 For beginner users who are not familiar with compiling and installing a library in Linux, go [here](doc/Compilation.md) for detailed instructions on how to compile libpointmatcher from the source code.  If you are comfortable with Linux and CMake and have already installed the prerequisites above, the following commands should install libpointmatcher on your system.
 
@@ -54,12 +54,12 @@ utest/utest --path ../examples/data/
 ```
 
 ### Linking to external projects.
-We mainly develop for __cmake projects__ and we provide example files under [`examples/demo_cmake/`](https://github.com/ethz-asl/libpointmatcher/tree/master/examples/demo_cmake) to help you in your own project. We also provide a __QT Creator__ example in [`examples/demo_QT/`](https://github.com/ethz-asl/libpointmatcher/tree/master/examples/demo_Qt), which manually list all the dependencies in the file [`demo.pro`](https://github.com/ethz-asl/libpointmatcher/blob/master/examples/demo_Qt/demo.pro). You would need to ajust those paths to point at the appropriate locations on your system.
+We mainly develop for __cmake projects__ and we provide example files under [`examples/demo_cmake/`](https://github.com/anybotics/libpointmatcher/tree/master/examples/demo_cmake) to help you in your own project. We also provide a __QT Creator__ example in [`examples/demo_QT/`](https://github.com/anybotics/libpointmatcher/tree/master/examples/demo_Qt), which manually list all the dependencies in the file [`demo.pro`](https://github.com/anybotics/libpointmatcher/blob/master/examples/demo_Qt/demo.pro). You would need to ajust those paths to point at the appropriate locations on your system.
 
 
 ### Bug reporting
 
-Please use our [github's issue tracker](http://github.com/ethz-asl/libpointmatcher/issues) to report bugs. If you are running the library on Ubuntu, copy-paste the output of the script [listVersionsUbuntu.sh](https://github.com/ethz-asl/libpointmatcher/blob/master/utest/listVersionsUbuntu.sh) to simplify the search of an answer.
+Please use our [github's issue tracker](http://github.com/anybotics/libpointmatcher/issues) to report bugs. If you are running the library on Ubuntu, copy-paste the output of the script [listVersionsUbuntu.sh](https://github.com/anybotics/libpointmatcher/blob/master/utest/listVersionsUbuntu.sh) to simplify the search of an answer.
 
 ## File formats
 The library support different file formats for importing or exporting data:
@@ -68,7 +68,7 @@ The library support different file formats for importing or exporting data:
   * ply (Polygon File Format)
   * pcd (Point Cloud Library Format)
 
-Those functionnalities are available without increasing the list of dependencies at the expense of a limited functionality support. For more details, see the tutorial [Importing and Exporting Point Clouds](doc/ImportExport.md). Example executables using those file formats from the command line can be found in `./example/` and are described [here](doc/ICPIntro.md) in more details 
+Those functionnalities are available without increasing the list of dependencies at the expense of a limited functionality support. For more details, see the tutorial [Importing and Exporting Point Clouds](doc/ImportExport.md). Example executables using those file formats from the command line can be found in `./example/` and are described [here](doc/ICPIntro.md) in more details
 
 Citing
 ======
@@ -101,7 +101,7 @@ Extra Reading
 =============
 If you are interested in learning more about different registration algorithms, we recently put together a literature review surveying multiple solutions. The review is organized in the same way as the library and many examples are provided based on real deployments.
 
-F. Pomerleau, F. Colas and R. Siegwart (2015), "_A Review of Point Cloud Registration Algorithms for Mobile Robotics_", __Foundations and Trends® in Robotics__: Vol. 4: No. 1, pp 1-104.  https://doi.org/10.1561/2300000035 
+F. Pomerleau, F. Colas and R. Siegwart (2015), "_A Review of Point Cloud Registration Algorithms for Mobile Robotics_", __Foundations and Trends® in Robotics__: Vol. 4: No. 1, pp 1-104.  https://doi.org/10.1561/2300000035
 
 If you don't have access to the journal, you can download it from [here](https://www.researchgate.net/publication/277558596_A_Review_of_Point_Cloud_Registration_Algorithms_for_Mobile_Robotics).
 
@@ -113,7 +113,7 @@ We also produced those freely available data sets to test different registration
 
 ![alt tag](http://projects.asl.ethz.ch/datasets/lib/exe/fetch.php?cache=&media=laserregistration:asldataset_weblarge.jpg)
 
-You can download the files in CSV or VTK formats, which are directly supported by the library I/O module. 
+You can download the files in CSV or VTK formats, which are directly supported by the library I/O module.
 
 
 Projects and Partners
@@ -139,7 +139,7 @@ libpointmatcher is released under a permissive BSD license. Enjoy!
 [CMake documentation]: http://www.cmake.org/cmake/help/cmake2.6docs.html
 [git]: http://git-scm.com
 [Eigen]: http://eigen.tuxfamily.org
-[libnabo]: http://github.com/ethz-asl/libnabo
+[libnabo]: http://github.com/anybotics/libnabo
 [ROS]: http://www.ros.org/
 [Paraview]: http://www.paraview.org/
 [yaml-cpp]: http://code.google.com/p/yaml-cpp/

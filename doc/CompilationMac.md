@@ -10,7 +10,7 @@ If you are used to development project, here is what you need:
 |Name           |Version  <br> (Tested Feb. 16, 2015)          |
 |---------------|-----------------------|
 |MacOS          | 10.10.2               |
-|Xcode          | todo                  |      
+|Xcode          | todo                  |
 |gcc            | 4.2.1                 |
 |brew           | 0.9.5                 |
 |git            | 1.9.3                 |
@@ -20,14 +20,14 @@ If you are used to development project, here is what you need:
 |_Dependency:_ ||
 |boost          | 1.57.0                |
 |eigen          | 3.2.4                 |
-|libnabo        | [from source](https://github.com/ethz-asl/libnabo)       |
+|libnabo        | [from source](https://github.com/anybotics/libnabo)       |
 
 
 __Note:__ Other versions will most probably work but you'll have to try yourself to know for sure.
 
 The rest of this tutorial will guide you through the different requirements step by step.
 
-### Some Basic Requirements 
+### Some Basic Requirements
 #### a. Installing Xcode via the App Store (OS X 10.10.2  and later)
 Mac OS X does not come with a built-in C++ command-line compiler.  You must therefore install XCode by visiting the App Store.
 
@@ -67,7 +67,7 @@ Once the scripts finishes installing, you are good to go!
 After installing the Xcode Command Line Tools, Git should already be installed on your system but you can check that it is there by running
 
 ```
-git --version 
+git --version
 ```
 If Git is installed, you should see a message of the form
 ```
@@ -95,11 +95,11 @@ Libpointmatcher is documented directly in the source-code using [Doxygen](http:/
 Once you have compiled libpointmatcher in step 6, you can simply open `/usr/local/share/doc/libpointmatcher/api/html/index.html` in a browser to view the API documentation.
 
 ### 3. Installing libnabo
-libnabo is a library for performing fast nearest-neighbor searches in low-dimensional spaces.  It can be found [here](https://github.com/ethz-asl/libnabo).  Clone the source repository into a local directory of your choice.
+libnabo is a library for performing fast nearest-neighbor searches in low-dimensional spaces.  It can be found [here](https://github.com/anybotics/libnabo).  Clone the source repository into a local directory of your choice.
 
 	mkdir ~/Libraries/
 	cd ~/Libraries
-	git clone git://github.com/ethz-asl/libnabo.git
+	git clone git://github.com/anybotics/libnabo.git
 	cd libnabo
 
 
@@ -116,7 +116,7 @@ To make sure that everything is working properly, run the unit tests:
 
 	make test
 
-This will run multiple nearest-neighbor searches performances and may take some minutes. 
+This will run multiple nearest-neighbor searches performances and may take some minutes.
 
 	sudo make install
 
@@ -131,7 +131,7 @@ This will run multiple nearest-neighbor searches performances and may take some 
 Clone the source repository into a local directory.  As an example we reuse the Libraries directory that was created to contain the libnabo sources.
 
 	cd ~/Libraries/
-	git clone git://github.com/ethz-asl/libpointmatcher.git
+	git clone git://github.com/anybotics/libpointmatcher.git
 	cd libpointmatcher
 
 Now, libpointmatcher is compiled into a `/build` directory.
@@ -168,13 +168,13 @@ sudo make install
 
 # Having problems?
 
-Some dependencies changed and we don't keep track of all combinations possible. Before reporting a problem, make sure to include the versions you are using. 
+Some dependencies changed and we don't keep track of all combinations possible. Before reporting a problem, make sure to include the versions you are using.
 
 Here are useful commands for the different version:
 
 MacOS version:
 
-	sw_vers -productVersion 
+	sw_vers -productVersion
 
 Compiler version:
 
@@ -204,6 +204,6 @@ Doxygen:
 
 	brew info doxygen
 
-	
+
 
 

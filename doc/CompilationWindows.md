@@ -14,8 +14,8 @@ If you are used to development project, here is what you need:
 | ------ | ---- | ------------- |
 | Windows |  | 10 |
 |  git | <https://git-scm.com/> | v2.20.1 |
-|  libpointmatcher sources | <https://github.com/ethz-asl/libpointmatcher> |  |
-| libnabo sources | <https://github.com/ethz-asl/libnabo> |  |
+|  libpointmatcher sources | <https://github.com/anybotics/libpointmatcher> |  |
+| libnabo sources | <https://github.com/anybotics/libnabo> |  |
 | Visual Studio |  <https://visualstudio.microsoft.com/>  | Visual Studio 2017 15.9.4 |
 | CMake | <https://cmake.org/> | v3.13.2 |
 | Eigen 3 | <http://eigen.tuxfamily.org/index.php> | v3.3.7 |
@@ -110,8 +110,8 @@ Currently, we don't have a developer fully supporting compilation on Windows. If
 
 Before reporting new building issues, have a look in the current/past list of issues. Add as much details as you can since you will most probably receive answers from developers that cannot reproduce the problem on their side. Here are some of them:
 
-- Your directory structure need to be well organized as mention in [Issue #136](https://github.com/ethz-asl/libpointmatcher/issues/136).
-- There might be some problems related to libnabo as mention in [Issue #128](https://github.com/ethz-asl/libpointmatcher/issues/118).
+- Your directory structure need to be well organized as mention in [Issue #136](https://github.com/anybotics/libpointmatcher/issues/136).
+- There might be some problems related to libnabo as mention in [Issue #128](https://github.com/anybotics/libpointmatcher/issues/118).
 
 ## Special Thanks
 

@@ -501,7 +501,7 @@ install(
   FILES
     "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/libpointmatcherConfig.cmake"
     "${PROJECT_BINARY_DIR}/libpointmatcherConfigVersion.cmake"
-  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev
+  DESTINATION "${INSTALL_CMAKE_DIR}"
 )
 
 # useful for TRADR european project. TODO: check to use the other install

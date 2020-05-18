@@ -51,9 +51,9 @@ void setupArgs(int argc, char *argv[], unsigned int& startId, unsigned int& endI
 vector<string> loadYamlFile(string listFileName);
 
 /**
-  * Code example for DataFilter taking a sequence of point clouds with  
+  * Code example for DataFilter taking a sequence of point clouds with
   * their global coordinates and build a map with a fix (manageable) number of points.
-  * The example shows how to generate filters in the source code. 
+  * The example shows how to generate filters in the source code.
   * For an example generating filters using yaml configuration, see demo_cmake/convert.cpp
   * For an example with a registration solution, see icp.cpp
   */
@@ -68,12 +68,12 @@ int main(int argc, char *argv[])
 
 	// Process arguments
 	PMIO::FileInfoVector list(argv[1]);
-	const unsigned totalPointCount = boost::lexical_cast<unsigned>(argv[2]);	
+	const unsigned totalPointCount = boost::lexical_cast<unsigned>(argv[2]);
 	string outputFileName(argv[3]);
-	
-	
+
+
 	setLogger(PM::get().LoggerRegistrar.create("FileLogger"));
-	
+
 	PM::DataPoints mapCloud;
 
 	PM::DataPoints lastCloud, newCloud;
@@ -86,10 +86,10 @@ int main(int argc, char *argv[])
 	// This filter will remove a sphere of 1 m radius. Easy way to remove the sensor self-scanning.
 	std::shared_ptr<PM::DataPointsFilter> removeScanner =
 		PM::get().DataPointsFilterRegistrar.create(
-			"MinDistDataPointsFilter", 
+			"MinDistDataPointsFilter",
 			{{"minDist", "1.0"}}
 		);
-	
+
 	// This filter will randomly remove 35% of the points.
 	std::shared_ptr<PM::DataPointsFilter> randSubsample =
 		PM::get().DataPointsFilterRegistrar.create(
@@ -97,8 +97,8 @@ int main(int argc, char *argv[])
 			{{"prob", toParam(0.65)}}
 		);
 
-	// For a complete description of filter, see 
-	// https://github.com/ethz-asl/libpointmatcher/blob/master/doc/Datafilters.md
+	// For a complete description of filter, see
+	// https://github.com/anybotics/libpointmatcher/blob/master/doc/Datafilters.md
 	std::shared_ptr<PM::DataPointsFilter> normalFilter =
 		PM::get().DataPointsFilterRegistrar.create(
 			"SurfaceNormalDataPointsFilter",
@@ -120,24 +120,24 @@ int main(int argc, char *argv[])
 				{"keepNormals","0"}
 			}
 		);
-	
+
 	std::shared_ptr<PM::DataPointsFilter> observationDirectionFilter =
 		PM::get().DataPointsFilterRegistrar.create(
 			"ObservationDirectionDataPointsFilter"
 		);
-	
+
 	std::shared_ptr<PM::DataPointsFilter> orientNormalFilter =
 		PM::get().DataPointsFilterRegistrar.create(
 			"OrientNormalsDataPointsFilter",
 			{{"towardCenter", "1"}}
 		);
-	
+
 	std::shared_ptr<PM::DataPointsFilter> uniformSubsample =
 		PM::get().DataPointsFilterRegistrar.create(
 			"MaxDensityDataPointsFilter",
 			{{"maxDensity", toParam(30)}}
 		);
-	
+
 	std::shared_ptr<PM::DataPointsFilter> shadowFilter =
 		PM::get().DataPointsFilterRegistrar.create(
 			"ShadowDataPointsFilter"
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 
 		cout << " found " << newCloud.getNbPoints() << " points. " << endl;
 
-	
+
 		if(list[i].groundTruthTransformation.rows() != 0)
 			T = list[i].groundTruthTransformation;
 		else
@@ -161,14 +161,14 @@ int main(int argc, char *argv[])
 		}
 
 		PM::Parameters params;
-		
+
 		// Remove the scanner
 		newCloud = removeScanner->filter(newCloud);
 
 
 		// Accelerate the process and dissolve lines
 		newCloud = randSubsample->filter(newCloud);
-		
+
 		// Build filter to remove shadow points and down-sample
 		newCloud = normalFilter->filter(newCloud);
 		newCloud = observationDirectionFilter->filter(newCloud);
@@ -186,22 +186,22 @@ int main(int argc, char *argv[])
 		else
 		{
 			mapCloud.concatenate(newCloud);
-			
+
 			// Control point cloud size
 			double probToKeep = totalPointCount/(double)mapCloud.features.cols();
 			if(probToKeep < 1)
 			{
-				
+
 				mapCloud = densityFilter->filter(mapCloud);
 				mapCloud = uniformSubsample->filter(mapCloud);
 
 				probToKeep = totalPointCount/(double)mapCloud.features.cols();
-				
+
 				if(probToKeep < 1)
 				{
-					cout << "Randomly keep " << probToKeep*100 << "\% points" << endl; 
+					cout << "Randomly keep " << probToKeep*100 << "\% points" << endl;
 					randSubsample = PM::get().DataPointsFilterRegistrar.create(
-						"RandomSamplingDataPointsFilter", 
+						"RandomSamplingDataPointsFilter",
 						{{"prob", toParam(probToKeep)}}
 					);
 					mapCloud = randSubsample->filter(mapCloud);
@@ -211,13 +211,13 @@ int main(int argc, char *argv[])
 
 		stringstream outputFileNameIter;
 		outputFileNameIter << boost::filesystem::path(outputFileName).stem().c_str() << "_" << i << ".vtk";
-		
+
 		mapCloud.save(outputFileNameIter.str());
 	}
-	
+
 	mapCloud = densityFilter->filter(mapCloud);
 	mapCloud = uniformSubsample->filter(mapCloud);
-	
+
 	mapCloud = densityFilter->filter(mapCloud);
 
 	cout << endl ;

@@ -45,7 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // NormalSpaceDataPointsFilter
 template <typename T>
 NormalSpaceDataPointsFilter<T>::NormalSpaceDataPointsFilter(const Parameters& params) :
-	PointMatcher<T>::DataPointsFilter("NormalSpaceDataPointsFilter", 
+	PointMatcher<T>::DataPointsFilter("NormalSpaceDataPointsFilter",
 		NormalSpaceDataPointsFilter::availableParameters(), params),
 	nbSample{Parametrizable::get<std::size_t>("nbSample")},
 	seed{Parametrizable::get<std::size_t>("seed")},
@@ -75,9 +75,9 @@ void NormalSpaceDataPointsFilter<T>::inPlaceFilter(DataPoints& cloud)
 		std::cerr << "ERROR: NormalSpaceDataPointsFilter does not support 2D point cloud yet (does nothing)" << std::endl;
 		return;
 	}
-		
+
 	//Check number of points
-	const int nbPoints = cloud.getNbPoints();		
+	const int nbPoints = cloud.getNbPoints();
 	if(nbSample >= std::size_t(nbPoints))
 		return;
 
@@ -86,19 +86,19 @@ void NormalSpaceDataPointsFilter<T>::inPlaceFilter(DataPoints& cloud)
 		throw InvalidField("OrientNormalsDataPointsFilter: Error, cannot find normals in descriptors.");
 
 	const auto& normals = cloud.getDescriptorViewByName("normals");
-	
+
 	std::mt19937 gen(seed); //Standard mersenne_twister_engine seeded with seed
 
 	//bucketed normal space
 	std::vector<std::vector<int> > idBuckets;
 	idBuckets.resize(nbBucket);
-	
+
 	std::vector<std::size_t> keepIndexes;
 	keepIndexes.reserve(nbSample);
 
 	// Generate a random sequence of indices so that elements are placed in buckets in random order
 	std::vector<std::size_t> randIdcs(nbPoints);
-	std::iota(randIdcs.begin(), randIdcs.end(), 0);
+	std::iota(randIdcs.begin(), randIdcs.end(), 0); // 0-nbPoints  TODO is there a way to do this with a generator?
 	std::random_shuffle(randIdcs.begin(), randIdcs.end());
 
 	///(1) put all points of the data into buckets based on their normal direction
@@ -148,7 +148,7 @@ void NormalSpaceDataPointsFilter<T>::inPlaceFilter(DataPoints& cloud)
 	// We build map of (old index to new index), in case we sample pts at the begining of the pointcloud
 	std::unordered_map<std::size_t, std::size_t> mapidx;
 	std::size_t idx = 0;
-	
+
 	///(4) Sample the point cloud
 	for(std::size_t id : keepIndexes)
 	{
@@ -156,8 +156,8 @@ void NormalSpaceDataPointsFilter<T>::inPlaceFilter(DataPoints& cloud)
 		if(id<idx)
 			id = mapidx[id];
 		//Switch columns id and idx
-		cloud.swapCols(idx, id);	
-		//Maintain new index position	
+		cloud.swapCols(idx, id);
+		//Maintain new index position
 		mapidx[idx] = id;
 		//Update index
 		++idx;

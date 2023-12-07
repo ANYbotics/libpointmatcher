@@ -16,13 +16,11 @@
   <build_depend>boost</build_depend>
   <build_depend>libnabo</build_depend>
   <build_depend>eigen</build_depend>
-  <build_depend>qpmad</build_depend>
   <build_depend>yaml-cpp</build_depend>
 
   <run_depend>boost</run_depend>
   <run_depend>libnabo</run_depend>
   <run_depend>eigen</run_depend>
-  <run_depend>qpmad</run_depend>
   <run_depend>yaml-cpp</run_depend>
 
 <!--   <test_depend>cmake_code_coverage</test_depend> -->

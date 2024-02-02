@@ -57,6 +57,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <ostream>
 #include <memory>
+#include <string_view>
 //#include <cstdint>
 #include <boost/cstdint.hpp>
 
@@ -272,6 +273,23 @@ struct PointMatcher
 
 				return stream;
 			};
+		};
+
+		//! Labels that are commonly used for representing data as point cloud fields.
+		struct FieldLabels
+		{
+			static constexpr std::string_view kXcoordinate{"x"};
+			static constexpr std::string_view kYcoordinate{"y"};
+			static constexpr std::string_view kZcoordinate{"z"};
+			static constexpr std::string_view kWcoordinate{"w"};
+			static constexpr std::string_view kHomogeneousCoordinate{"pad"};
+			static constexpr std::string_view kNormalVectors{"normals"};
+			static constexpr std::string_view kObservationDirectionVectors{"observationDirections"};
+			static constexpr std::string_view kColorVectors{"color"};
+			static constexpr std::string_view kCurvature{"curvature"};
+			static constexpr std::string_view kIntensity{"intensity"};
+                        static constexpr std::string_view kReflectivity{"reflectivity"};
+			static constexpr std::string_view kTime{"time"};
 		};
 
 		//! Index to reflect the point cloud ordering as a 2D grid

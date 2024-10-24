@@ -322,6 +322,9 @@ TEST_F(DataFilterTest, ElipsoidsDataPointsFilter)
 }
 */
 
+#ifndef ROS2_BUILD
+// NOTE(apoghosov): we switch off this test in ROS2 build because the underlying component does not compile
+// for Eigen 3.4.0 used in ROS2
 TEST_F(DataFilterTest, GestaltDataPointsFilter)
 {
 	// This filter creates descriptor AND subsamples
@@ -341,6 +344,7 @@ TEST_F(DataFilterTest, GestaltDataPointsFilter)
 	addFilter("GestaltDataPointsFilter", params);
 	validate3dTransformation();
 }
+#endif
 
 TEST_F(DataFilterTest, OrientNormalsDataPointsFilter)
 {

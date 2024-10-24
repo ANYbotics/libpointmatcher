@@ -88,7 +88,9 @@ struct DataPointsFiltersImpl
 	typedef ::VoxelGridDataPointsFilter<T> VoxelGridDataPointsFilter;
 	typedef ::CutAtDescriptorThresholdDataPointsFilter<T> CutAtDescriptorThresholdDataPointsFilter;
 	typedef ::ElipsoidsDataPointsFilter<T> ElipsoidsDataPointsFilter;
+#ifndef ROS2_BUILD
 	typedef ::GestaltDataPointsFilter<T> GestaltDataPointsFilter;
+#endif
 	typedef ::OctreeGridDataPointsFilter<T> OctreeGridDataPointsFilter;
 	typedef ::NormalSpaceDataPointsFilter<T> NormalSpaceDataPointsFilter;
 	typedef ::CovarianceSamplingDataPointsFilter<T> CovarianceSamplingDataPointsFilter;

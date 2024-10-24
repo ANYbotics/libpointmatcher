@@ -85,7 +85,10 @@ PointMatcher<T>::PointMatcher()
     ADD_TO_REGISTRAR(DataPointsFilter, HiddenPointRemovalDataPointsFilter, typename DataPointsFiltersImpl<T>::HiddenPointRemovalDataPointsFilter)
 	ADD_TO_REGISTRAR(DataPointsFilter, CutAtDescriptorThresholdDataPointsFilter, typename DataPointsFiltersImpl<T>::CutAtDescriptorThresholdDataPointsFilter)
 	ADD_TO_REGISTRAR(DataPointsFilter, ElipsoidsDataPointsFilter, typename DataPointsFiltersImpl<T>::ElipsoidsDataPointsFilter)
+#ifndef ROS2_BUILD
+	// NOTE(apoghosov): this guy sesms to fail to compile under Eigen 3.4.0 in ROS2 so we switch it off sd we don't use it
 	ADD_TO_REGISTRAR(DataPointsFilter, GestaltDataPointsFilter, typename DataPointsFiltersImpl<T>::GestaltDataPointsFilter)
+#endif
 	ADD_TO_REGISTRAR(DataPointsFilter, OctreeGridDataPointsFilter, typename DataPointsFiltersImpl<T>::OctreeGridDataPointsFilter)
 	ADD_TO_REGISTRAR(DataPointsFilter, NormalSpaceDataPointsFilter, typename DataPointsFiltersImpl<T>::NormalSpaceDataPointsFilter)
 	ADD_TO_REGISTRAR(DataPointsFilter, CovarianceSamplingDataPointsFilter, typename DataPointsFiltersImpl<T>::CovarianceSamplingDataPointsFilter)

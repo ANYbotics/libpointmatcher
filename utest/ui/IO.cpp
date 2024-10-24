@@ -435,12 +435,12 @@ TEST_F(IOLoadSaveTest, VTK)
 	ptCloud.addDescriptor("genericVector", PM::Matrix::Random(3, nbPts));
 	ptCloud.addTime("genericTime", PM::Int64Matrix::Random(1, nbPts));
 
-	loadSaveTest(dataPath + "unit_test.vtk");
+	auto path = boost::filesystem::temp_directory_path() / "TEST_F_IOLoadSaveTest_VTK.vtk";
+	loadSaveTest(path.string());
 
 	EXPECT_TRUE(ptCloudFromFile.descriptorExists("genericScalar",1));
 	EXPECT_TRUE(ptCloudFromFile.descriptorExists("genericVector",3));
 	EXPECT_TRUE(ptCloudFromFile.timeExists("genericTime",1));
-
 }
 
 TEST_F(IOLoadSaveTest, VTKBinary)
@@ -449,7 +449,8 @@ TEST_F(IOLoadSaveTest, VTKBinary)
 	ptCloud.addDescriptor("genericVector", PM::Matrix::Random(3, nbPts));
 	ptCloud.addTime("genericTime", PM::Int64Matrix::Random(1, nbPts));
 
-	loadSaveTest(dataPath + "unit_test.bin.vtk", false, 10, true);
+	auto path = boost::filesystem::temp_directory_path() / "TEST_F_IOLoadSaveTest_VTKBinary.bin.vtk";
+	loadSaveTest(path.string(), false, 10, true);
 
 	EXPECT_TRUE(ptCloudFromFile.descriptorExists("genericScalar",1));
 	EXPECT_TRUE(ptCloudFromFile.descriptorExists("genericVector",3));
@@ -458,15 +459,18 @@ TEST_F(IOLoadSaveTest, VTKBinary)
 
 TEST_F(IOLoadSaveTest, PLY)
 {
-	loadSaveTest(dataPath + "unit_test.ply", true);
+	auto path = boost::filesystem::temp_directory_path() / "TEST_F_IOLoadSaveTest_PLY.ply";
+	loadSaveTest(path.string(), true);
 }
 
 TEST_F(IOLoadSaveTest, PCD)
 {
-	loadSaveTest(dataPath + "unit_test.pcd");
+	auto path = boost::filesystem::temp_directory_path() / "TEST_F_IOLoadSaveTest_PCD.pcd";
+	loadSaveTest(path.string());
 }
 
 TEST_F(IOLoadSaveTest, CSV)
 {
-	loadSaveTest(dataPath + "unit_test.csv");
+	auto path = boost::filesystem::temp_directory_path() / "TEST_F_IOLoadSaveTest_CSV.csv";
+	loadSaveTest(path.string());
 }

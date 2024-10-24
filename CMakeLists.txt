@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.16.3)
+
 project(libpointmatcher)
+
+if("$ENV{ROS_VERSION}" STREQUAL "1")
 
 # Pointmatcher lib and install
 set(POINTMATCHER_SRC
@@ -83,3 +86,8 @@ if (BUILD_TYPE STREQUAL "catkin")
 else()
 	include(PureCMakeBuild.cmake)
 endif()
+
+else() # ROS version 2
+	include(ColconBuild.cmake)
+endif()
+

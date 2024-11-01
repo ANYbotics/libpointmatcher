@@ -123,6 +123,11 @@ target_compile_options(pointmatcher PRIVATE
   "$<$<NOT:$<CONFIG:Debug>>:-O3>"
   )
 
+set_target_properties(pointmatcher
+  PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+  )
+
 ament_target_dependencies(pointmatcher ${PACKAGE_DEPENDENCIES})
 
 #############

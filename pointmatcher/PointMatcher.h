@@ -1034,9 +1034,9 @@ struct PointMatcher
         //! @param translation[in]     Translation with respect to the box origin, to be used for positioning the box.
         //! @param rotation[in]        Rotation with respect to the box origin, to be used for positioning the box.
         //! @return DataPoints  Box's point cloud.
-        static DataPoints generateUniformlySampledBox(const ScalarType length, const ScalarType width, const ScalarType height,
-                                                      const Index numberOfPoints, const StaticCoordVector& translation,
-                                                      const Quaternion& rotation);
+        static DataPoints generateUniformlySampledBox(const ScalarType length = 1, const ScalarType width = 1, const ScalarType height = 1,
+                                                      const Index numberOfPoints = 1e3, const StaticCoordVector& translation = StaticCoordVector::Zero(),
+                                                      const Quaternion& rotation = Quaternion::Identity());
 
         //! Pi.
         static constexpr ScalarType pi{ static_cast<ScalarType>(M_PI) };

@@ -230,14 +230,10 @@ struct PointMatcher
 	{
 		//! A view on a feature or descriptor
 		typedef Eigen::Block<Matrix> View;
-		//! A view on a time
-		typedef Eigen::Block<Int64Matrix> TimeView;
 		//! A view on the index grid
 		typedef Eigen::Block<Int64Matrix> IndexGridView;
 		//! A view on a const feature or const descriptor
 		typedef const Eigen::Block<const Matrix> ConstView;
-		//! a view on a const time
-		typedef const Eigen::Block<const Int64Matrix> TimeConstView;
 		//! An index to a row or a column
 		typedef typename Matrix::Index Index;
 		//! a view on the index grid
@@ -310,13 +306,11 @@ struct PointMatcher
 		DataPoints();
 		DataPoints(const Labels& featureLabels, const Labels& descriptorLabels, const size_t pointCount);
 		DataPoints(const Labels& featureLabels, const Labels& descriptorLabels, const size_t width, const size_t height);
-		DataPoints(const Labels& featureLabels, const Labels& descriptorLabels, const Labels& timeLabels, const size_t pointCount);
 
 		// Copy constructors from partial data
 		DataPoints(Matrix features, Labels featureLabels);
 		DataPoints(Matrix features, Labels featureLabels, Matrix descriptors, Labels descriptorLabels);
 		DataPoints(Matrix features, Labels featureLabels, Matrix descriptors, Labels descriptorLabels, IndexMatrix indexGrid);
-		DataPoints(Matrix features, Labels featureLabels, Matrix descriptors, Labels descriptorLabels, Int64Matrix times, Labels timeLabels);
 
 		bool operator ==(const DataPoints& that) const;
 
@@ -325,7 +319,6 @@ struct PointMatcher
 		unsigned getHomogeneousDim() const;
 		unsigned getNbGroupedDescriptors() const;
 		unsigned getDescriptorDim() const;
-		unsigned getTimeDim() const;
 		unsigned getWidth() const;
 		unsigned getHeight() const;
 
@@ -371,22 +364,6 @@ struct PointMatcher
 		unsigned getDescriptorStartingRow(const std::string& name) const;
 		void assertDescriptorConsistency() const;
 
-		// methods related to times
-		void allocateTime(const std::string& name, const unsigned dim);
-		void allocateTimes(const Labels& newLabels);
-		void addTime(const std::string& name, const Int64Matrix& newTime);
-		void removeTime(const std::string& name);
-		Int64Matrix getTimeCopyByName(const std::string& name) const;
-		TimeConstView getTimeViewByName(const std::string& name) const;
-		TimeView getTimeViewByName(const std::string& name);
-		TimeConstView getTimeRowViewByName(const std::string& name, const unsigned row) const;
-		TimeView getTimeRowViewByName(const std::string& name, const unsigned row);
-		bool timeExists(const std::string& name) const;
-		bool timeExists(const std::string& name, const unsigned dim) const;
-		unsigned getTimeDimension(const std::string& name) const;
-		unsigned getTimeStartingRow(const std::string& name) const;
-		void assertTimesConsistency() const;
-
 		// methods related to point organization
 		void allocateIndexGrid(Index width, Index height);
 		void deallocateIndexGrid();
@@ -404,8 +381,6 @@ struct PointMatcher
 		Labels featureLabels; //!< labels of features
 		Matrix descriptors; //!< descriptors of points in the cloud, might be empty
 		Labels descriptorLabels; //!< labels of descriptors
-		Int64Matrix times; //!< time associated to each points, might be empty
-		Labels timeLabels; //!< labels of times.
 		IndexMatrix indexGrid; //!< mapping between a dense index for points and a 2D sensor-specific grid (point cloud ordering)
 
 	private:

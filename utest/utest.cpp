@@ -44,7 +44,6 @@ std::string dataPath;
 
 DP ref3D;
 DP data3D;
-PM::TransformationParameters validT2d;
 PM::TransformationParameters validT3d;
 
 //---------------------------
@@ -73,11 +72,6 @@ int main(int argc, char **argv)
 	data3D = DP::load(dataPath + "car_cloud401.csv");
 
 	// Result of data express in ref (from visual inspection)
-	validT2d = PM::TransformationParameters(3,3);
-	validT2d <<  0.987498,  0.157629, 0.0859918,
-				-0.157629,  0.987498,  0.203247,
-						0,         0,         1;
-
 	validT3d = PM::TransformationParameters(4,4);
 	validT3d <<   0.982304,   0.166685,  -0.0854066,  0.0446816,
 	 			 -0.150189,   0.973488,   0.172524,   0.191998,

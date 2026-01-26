@@ -146,9 +146,6 @@ struct InspectorsImpl
 		void buildTensorStream(std::ostream& stream, const std::string& name, const DataPoints& cloud);
 		
 		void buildColorStream(std::ostream& stream, const std::string& name, const DataPoints& cloud);
-		
-		void buildTimeStream(std::ostream& stream, const std::string& name, const DataPoints& cloud);
-		
 
 
 		Matrix padWithZeros(const Matrix m, const int expectedRow, const int expectedCols); 

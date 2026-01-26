@@ -51,7 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * \date 01/06/2018
  * \version 0.2
  *
- * Octree/Quadtree implementation for decomposing point cloud. 
+ * Octree implementation for decomposing point cloud. 
  * The current implementation use the data structure PointMatcher<T>::DataPoints. 
  * It ensures that each node has either (8/4) or 0 childs. 
  *

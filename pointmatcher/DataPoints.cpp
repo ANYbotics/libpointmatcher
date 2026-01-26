@@ -141,24 +141,6 @@ PointMatcher<T>::DataPoints::DataPoints(const Labels& featureLabels,
 	allocateIndexGrid(width, height);
 }
 
-//! Construct a point cloud from existing descriptions
-template<typename T>
-PointMatcher<T>::DataPoints::DataPoints(const Labels& featureLabels,
-										const Labels& descriptorLabels,
-										const Labels& timeLabels,
-										const size_t pointCount):
-	featureLabels(featureLabels),
-	descriptorLabels(descriptorLabels),
-	timeLabels(timeLabels)
-{
-	features.resize(featureLabels.totalDim(), pointCount);
-
-	if(descriptorLabels.totalDim())
-		descriptors.resize(descriptorLabels.totalDim(), pointCount);
-	if(timeLabels.totalDim())
-		times.resize(timeLabels.totalDim(), pointCount);
-}
-
 //! Construct a point cloud from existing features without any descriptor
 template<typename T>
 PointMatcher<T>::DataPoints::DataPoints(Matrix features, Labels featureLabels):
@@ -183,17 +165,6 @@ PointMatcher<T>::DataPoints::DataPoints(Matrix features, Labels featureLabels, M
 	descriptors(std::move(descriptors)),
 	descriptorLabels(std::move(descriptorLabels)),
 	indexGrid(std::move(indexGrid))
-{}
-
-//! Construct a point cloud from existing features, descriptors and times
-template<typename T>
-PointMatcher<T>::DataPoints::DataPoints(Matrix features, Labels featureLabels, Matrix descriptors, Labels descriptorLabels, Int64Matrix times, Labels timeLabels):
-	features(std::move(features)),
-	featureLabels(std::move(featureLabels)),
-	descriptors(std::move(descriptors)),
-	descriptorLabels(std::move(descriptorLabels)),
-	times(std::move(times)),
-	timeLabels(std::move(timeLabels))
 {}
 
 //! Return the number of points contained in the point cloud
@@ -232,13 +203,6 @@ unsigned PointMatcher<T>::DataPoints::getDescriptorDim() const
 	return descriptors.rows();
 }
 
-//! Return the total number of times
-template<typename T>
-unsigned PointMatcher<T>::DataPoints::getTimeDim() const
-{
-	return times.rows();
-}
-
 //! Return the width of the point cloud
 template<typename T>
 unsigned PointMatcher<T>::DataPoints::getWidth() const
@@ -265,8 +229,6 @@ bool PointMatcher<T>::DataPoints::operator ==(const DataPoints& that) const
 		(features.cols() == that.features.cols()) &&
 		(descriptors.rows() == that.descriptors.rows()) &&
 		(descriptors.cols() == that.descriptors.cols())	&&
-		(times.rows() == that.times.rows()) &&
-		(times.cols() == that.times.cols()) &&
 		(indexGrid.rows() == that.indexGrid.rows()) &&
 		(indexGrid.cols() == that.indexGrid.cols()))
 	{
@@ -274,8 +236,6 @@ bool PointMatcher<T>::DataPoints::operator ==(const DataPoints& that) const
 			(featureLabels == that.featureLabels) &&
 			(descriptors == that.descriptors) &&
 			(descriptorLabels == that.descriptorLabels)&&
-			(times == that.times) &&
-			(timeLabels == that.timeLabels) &&
 			(indexGrid == that.indexGrid);
 	}
 
@@ -306,10 +266,6 @@ void PointMatcher<T>::DataPoints::concatenate(const DataPoints& dp)
 	// concatenate descriptors
 	concatenateLabelledMatrix(&descriptorLabels, &descriptors, dp.descriptorLabels, dp.descriptors);
 	assertDescriptorConsistency();
-	
-	// concatenate time
-	concatenateLabelledMatrix(&timeLabels, &times, dp.timeLabels, dp.times);
-	assertTimesConsistency();
 
 	// deallocate index grid, as we assume that concatenation breaks point cloud ordering
 	deallocateIndexGrid();
@@ -400,9 +356,6 @@ void PointMatcher<T>::DataPoints::conservativeResize(Index pointCount)
 	if (descriptors.cols() > 0)
 		descriptors.conservativeResize(Eigen::NoChange, pointCount);
 
-	if (times.cols() > 0)
-		times.conservativeResize(Eigen::NoChange, pointCount);
-
 	// If the point cloud is not organized, return early.
 	if(!isOrganized()) {
 		return;
@@ -418,7 +371,7 @@ void PointMatcher<T>::DataPoints::conservativeResize(Index pointCount)
 	}
 }
 
-//! Create an empty DataPoints of similar dimensions and labels  for features, descriptors and times
+//! Create an empty DataPoints of similar dimensions and labels  for features and descriptors
 template<typename T>
 typename PointMatcher<T>::DataPoints PointMatcher<T>::DataPoints::createSimilarEmpty() const
 {
@@ -433,13 +386,6 @@ typename PointMatcher<T>::DataPoints PointMatcher<T>::DataPoints::createSimilarE
 	{
 		output.descriptors = Matrix(descriptors.rows(), nbPoints);
 		output.descriptorLabels = descriptorLabels;
-	}
-
-	assertTimesConsistency();
-	if (times.cols() > 0)
-	{
-		output.times = Int64Matrix(times.rows(), nbPoints);
-		output.timeLabels = timeLabels;
 	}
 
 	if(isOrganized()) {
@@ -466,13 +412,6 @@ typename PointMatcher<T>::DataPoints PointMatcher<T>::DataPoints::createSimilarE
 		output.descriptorLabels = descriptorLabels;
 	}
 
-	assertTimesConsistency();
-	if (times.cols() > 0)
-	{
-		output.times = Int64Matrix(times.rows(), pointCount);
-		output.timeLabels = timeLabels;
-	}
-
 	return output;
 }
 
@@ -485,8 +424,6 @@ void PointMatcher<T>::DataPoints::clear()
     this->features.resize(zeroPointCount, zeroPointCount);
     this->descriptorLabels.clear();
     this->descriptors.resize(zeroPointCount, zeroPointCount);
-    this->timeLabels.clear();
-    this->times.resize(zeroPointCount, zeroPointCount);
     this->deallocateIndexGrid();
 }
 
@@ -499,9 +436,6 @@ void PointMatcher<T>::DataPoints::setColFrom(Index thisCol, const DataPoints& th
 	
 	if (descriptors.cols() > 0)
 		descriptors.col(thisCol) = that.descriptors.col(thatCol);
-
-	if (times.cols() > 0)
-		times.col(thisCol) = that.times.col(thatCol);
 
 	assert(isOrganized() == false);
 }
@@ -519,8 +453,6 @@ void PointMatcher<T>::DataPoints::swapCols(Index iCol, Index jCol)
 	features.col(iCol).swap(features.col(jCol));
 	if (descriptors.cols() > 0)
 		descriptors.col(iCol).swap(descriptors.col(jCol));
-	if (times.cols() > 0)
-		times.col(iCol).swap(times.col(jCol));
 	
 	assert(isOrganized() == false);
 }
@@ -726,111 +658,6 @@ void PointMatcher<T>::DataPoints::assertDescriptorConsistency() const
 	assertConsistency("descriptors", descriptors.rows(), descriptors.cols(), descriptorLabels);
 }
 
-//------------------------------------
-// Methods related to time
-//------------------------------------
-
-//! Makes sure a time of a given name exists, if present, check its dimensions
-template<typename T>
-void PointMatcher<T>::DataPoints::allocateTime(const std::string& name, const unsigned dim)
-{
-	allocateField(name, dim, timeLabels, times);
-}
-
-//! Make sure a vector of time of given names exist
-template<typename T>
-void PointMatcher<T>::DataPoints::allocateTimes(const Labels& newLabels)
-{
-	allocateFields(newLabels, timeLabels, times);
-}
-
-
-//! Add a time by name, remove first if already exists
-template<typename T>
-void PointMatcher<T>::DataPoints::addTime(const std::string& name, const Int64Matrix& newTime)
-{
-	addField(name, newTime, timeLabels, times);
-}
-
-//! Remove a descriptor by name, the whole matrix will be copied
-template<typename T>
-void PointMatcher<T>::DataPoints::removeTime(const std::string& name)
-{
-	removeField(name, timeLabels, times);
-}
-
-//! Get time by name, return a matrix containing a copy of the requested time 
-template<typename T>
-typename PointMatcher<T>::Int64Matrix PointMatcher<T>::DataPoints::getTimeCopyByName(const std::string& name) const
-{
-	return Int64Matrix(getTimeViewByName(name));
-}
-
-
-//! Get a const view on a time by name, throw an exception if it does not exist
-template<typename T>
-const typename PointMatcher<T>::DataPoints::TimeConstView PointMatcher<T>::DataPoints::getTimeViewByName(const std::string& name) const
-{
-	return getConstViewByName(name, timeLabels, times);
-}
-
-//! Get a view on a time by name, throw an exception if it does not exist
-template<typename T>
-typename PointMatcher<T>::DataPoints::TimeView PointMatcher<T>::DataPoints::getTimeViewByName(const std::string& name)
-{
-	return getViewByName(name, timeLabels, times);
-}
-
-//! Get a const view on a time row by name and number, throw an exception if it does not exist
-template<typename T>
-const typename PointMatcher<T>::DataPoints::TimeConstView PointMatcher<T>::DataPoints::getTimeRowViewByName(const std::string& name, const unsigned row) const
-{
-	return getConstViewByName(name, timeLabels, times, int(row));
-}
-
-//! Get a view on a time by row name and number, throw an exception if it does not exist
-template<typename T>
-typename PointMatcher<T>::DataPoints::TimeView PointMatcher<T>::DataPoints::getTimeRowViewByName(const std::string& name, const unsigned row)
-{
-	return getViewByName(name, timeLabels, times, int(row));
-}
-
-
-//! Look if a time with a given name exist
-template<typename T>
-bool PointMatcher<T>::DataPoints::timeExists(const std::string& name) const
-{
-	return fieldExists(name, 0, timeLabels);
-}
-
-//! Look if a time with a given name and dimension exist
-template<typename T>
-bool PointMatcher<T>::DataPoints::timeExists(const std::string& name, const unsigned dim) const
-{
-	return fieldExists(name, dim, timeLabels);
-}
-
-//! Return the dimension of a time with a given name. Return 0 if the name is not found
-template<typename T>
-unsigned PointMatcher<T>::DataPoints::getTimeDimension(const std::string& name) const
-{
-	return getFieldDimension(name, timeLabels);
-}
-
-//! Return the starting row of a time with a given name. Return 0 if the name is not found
-template<typename T>
-unsigned PointMatcher<T>::DataPoints::getTimeStartingRow(const std::string& name) const
-{
-	return getFieldStartingRow(name, timeLabels);
-}
-
-//! Assert if times are not consistent with features
-template<typename T>
-void PointMatcher<T>::DataPoints::assertTimesConsistency() const
-{
-	assertConsistency("times", times.rows(), times.cols(), timeLabels);
-}
-
 //---------------------------------------
 // Methods related to point organization
 //---------------------------------------
@@ -909,12 +736,10 @@ typename PointMatcher<T>::Int64 PointMatcher<T>::DataPoints::computeMemoryUsage(
     totalMemoryUsed += sizeof(Labels) * 3;
     totalMemoryUsed += sizeof(std::string) * featureLabels.size();
     totalMemoryUsed += sizeof(std::string) * descriptorLabels.size();
-    totalMemoryUsed += sizeof(std::string) * timeLabels.size();
 
     // Data.
     totalMemoryUsed += sizeof(T) * features.rows() * features.cols();
     totalMemoryUsed += sizeof(T) * descriptors.rows() * descriptors.cols();
-    totalMemoryUsed += sizeof(Int64) * times.rows() * times.cols();
 
     // Index grid
     totalMemoryUsed += sizeof(Index) * indexGrid.rows() * indexGrid.cols();
@@ -1230,8 +1055,6 @@ void PointMatcher<T>::swapDataPoints(DataPoints& a, DataPoints& b)
 	swap(a.featureLabels, b.featureLabels);
 	a.descriptors.swap(b.descriptors);
 	swap(a.descriptorLabels, b.descriptorLabels);
-	a.times.swap(b.times);
-	swap(a.timeLabels, b.timeLabels);
 	a.indexGrid.swap(b.indexGrid);
 }
  

@@ -79,7 +79,6 @@ TEST(IOTest, loadCSV)
   EXPECT_EQ(4u, pts.getNbPoints());
   EXPECT_EQ(2u, pts.getEuclideanDim());
   EXPECT_EQ(0u, pts.getDescriptorDim());
-  EXPECT_EQ(0u, pts.getTimeDim());
   EXPECT_EQ(8.0, pts.features(0,2));
   
   // 3D data 
@@ -99,7 +98,6 @@ TEST(IOTest, loadCSV)
   EXPECT_EQ(4u, pts.getNbPoints());
   EXPECT_EQ(3u, pts.getEuclideanDim());
   EXPECT_EQ(0u, pts.getDescriptorDim());
-  EXPECT_EQ(0u, pts.getTimeDim());
   EXPECT_EQ(8.0, pts.features(0,2));
 
   // 3D data with unknown descriptor
@@ -119,7 +117,6 @@ TEST(IOTest, loadCSV)
   EXPECT_EQ(4u, pts.getNbPoints());
   EXPECT_EQ(3u, pts.getEuclideanDim());
   EXPECT_EQ(1u, pts.getDescriptorDim());
-  EXPECT_EQ(0u, pts.getTimeDim());
   EXPECT_TRUE(pts.descriptorExists("dummy"));
 
   // 3D data with known descriptor
@@ -140,23 +137,16 @@ TEST(IOTest, loadCSV)
   EXPECT_EQ(3u, pts.getEuclideanDim());
   EXPECT_EQ(3u, pts.getDescriptorDim());
   EXPECT_EQ(1u, pts.getNbGroupedDescriptors());
-  EXPECT_EQ(0u, pts.getTimeDim());
   EXPECT_TRUE(pts.descriptorExists("normals"));
   
-  // csv with time
-  int64_t time0 = 1410264593275569438;
-  int64_t time1 = 1410264593325569391;
-  int64_t time2 = 1410264593425569295;
-  int64_t time3 = 1410264593522569417;
-
   os.clear();
   os.str("");
 	os <<
-	"x, y, z, time\n"
-	"1, 1, 1, " << time0 << "\n"
-	"2, 1, 1, " << time1 << "\n"
-	"3, 1, 1, " << time2 << "\n"
-	"4, 1, 1, " << time3 << "\n"
+	"x, y, z\n"
+	"1, 1, 1 \n"
+	"2, 1, 1 \n"
+	"3, 1, 1 \n"
+	"4, 1, 1 \n"
 	;
 
   is.clear();
@@ -166,15 +156,6 @@ TEST(IOTest, loadCSV)
   EXPECT_EQ(4u, pts.getNbPoints());
   EXPECT_EQ(3u, pts.getEuclideanDim());
   EXPECT_EQ(0u, pts.getDescriptorDim());
-  EXPECT_EQ(1u, pts.getTimeDim());
-  EXPECT_EQ(time3, pts.times(0,3));
-
-  //cout << "dim: " << pts.getEuclideanDim() << endl;
-  //cout << "nb pts: " << pts.getNbPoints() << endl;
-  //cout << "desc dim: " << pts.getDescriptorDim() << endl;
-  //cout << "time dim: " << pts.getTimeDim() << endl;
-
-
 
 }
 
@@ -433,28 +414,24 @@ TEST_F(IOLoadSaveTest, VTK)
 {
 	ptCloud.addDescriptor("genericScalar", PM::Matrix::Random(1, nbPts));
 	ptCloud.addDescriptor("genericVector", PM::Matrix::Random(3, nbPts));
-	ptCloud.addTime("genericTime", PM::Int64Matrix::Random(1, nbPts));
 
 	auto path = boost::filesystem::temp_directory_path() / "TEST_F_IOLoadSaveTest_VTK.vtk";
 	loadSaveTest(path.string());
 
 	EXPECT_TRUE(ptCloudFromFile.descriptorExists("genericScalar",1));
 	EXPECT_TRUE(ptCloudFromFile.descriptorExists("genericVector",3));
-	EXPECT_TRUE(ptCloudFromFile.timeExists("genericTime",1));
 }
 
 TEST_F(IOLoadSaveTest, VTKBinary)
 {
 	ptCloud.addDescriptor("genericScalar", PM::Matrix::Random(1, nbPts));
 	ptCloud.addDescriptor("genericVector", PM::Matrix::Random(3, nbPts));
-	ptCloud.addTime("genericTime", PM::Int64Matrix::Random(1, nbPts));
 
 	auto path = boost::filesystem::temp_directory_path() / "TEST_F_IOLoadSaveTest_VTKBinary.bin.vtk";
 	loadSaveTest(path.string(), false, 10, true);
 
 	EXPECT_TRUE(ptCloudFromFile.descriptorExists("genericScalar",1));
 	EXPECT_TRUE(ptCloudFromFile.descriptorExists("genericVector",3));
-	EXPECT_TRUE(ptCloudFromFile.timeExists("genericTime",1));
 }
 
 TEST_F(IOLoadSaveTest, PLY)

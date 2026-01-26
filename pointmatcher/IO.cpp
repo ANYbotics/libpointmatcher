@@ -538,7 +538,6 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadCSV(std::istream& is
 	LabelGenerator featLabelGen, descLabelGen, timeLabelGen;
 	Matrix features;
 	Matrix descriptors;
-	Int64Matrix times;
 	unsigned int csvCol = 0;
 	unsigned int csvRow = 0;
 	bool hasHeader(false);
@@ -645,7 +644,6 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadCSV(std::istream& is
 			// Counters
 			int rowIdFeatures = 0;
 			int rowIdDescriptors = 0;
-			int rowIdTime = 0;
 
 			
 			// Loop through all known external names (ordered list)
@@ -671,13 +669,8 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadCSV(std::istream& is
 								descLabelGen.add(supLabel.internalName);
 								rowIdDescriptors++;
 								break;
-							case TIME:
-								csvHeader[j].matrixRowId = rowIdTime;
-								timeLabelGen.add(supLabel.internalName);
-								rowIdTime++;
-								break;
 							default:
-								throw runtime_error(string("CSV parse error: encounter a type different from FEATURE, DESCRIPTOR and TIME. Implementation not supported. See the definition of 'enum PMPropTypes'"));
+								throw runtime_error(string("CSV parse error: encounter a type different from FEATURE and DESCRIPTOR. Implementation not supported. See the definition of 'enum PMPropTypes'"));
 								break;
 						}
 						
@@ -711,7 +704,6 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadCSV(std::istream& is
 
 			features = Matrix(featDim, nbPoints);
 			descriptors = Matrix(descDim, nbPoints);
-			times = Int64Matrix(timeDim, nbPoints);
 		}
 
 
@@ -746,11 +738,8 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadCSV(std::istream& is
 					case DESCRIPTOR:
 						descriptors(matrixRow, matrixCol) = lexical_cast_scalar_to_string<T>(token);
 						break;
-					case TIME:
-						times(matrixRow, matrixCol) = lexical_cast_scalar_to_string<std::int64_t>(token);
-						break;
 					default:
-						throw runtime_error(string("CSV parse error: encounter a type different from FEATURE, DESCRIPTOR and TIME. Implementation not supported. See the definition of 'enum PMPropTypes'"));
+						throw runtime_error(string("CSV parse error: encounter a type different from FEATURE and DESCRIPTOR. Implementation not supported. See the definition of 'enum PMPropTypes'"));
 						break;
 
 				}
@@ -783,13 +772,7 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadCSV(std::istream& is
 		loadedPoints.descriptors = descriptors;
 		loadedPoints.descriptorLabels = descLabelGen.getLabels();
 	}
-
-	if(times.rows() > 0)
-	{
-		loadedPoints.times = times;
-		loadedPoints.timeLabels = timeLabelGen.getLabels();	
-	}
-
+	
 	// Ensure homogeous coordinates
 	if(!loadedPoints.featureExists("pad"))
 	{
@@ -1099,23 +1082,6 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadVTK(std::istream& is
 			// label name
 			is >> name;
 			
-			bool isTimeSec = false;
-			bool isTimeNsec = false;
-
-
-			if(boost::algorithm::ends_with(name, "_splitTime_high32"))
-			{
-				isTimeSec = true;
-				boost::algorithm::erase_last(name, "_splitTime_high32");
-			}
-			
-			if(boost::algorithm::ends_with(name, "_splitTime_low32"))
-			{
-				isTimeNsec = true;
-				boost::algorithm::erase_last(name, "_splitTime_low32");
-			}
-
-			
 			bool skipLookupTable = false;
 			bool isColorScalars = false;
 			if(fieldName == "SCALARS")
@@ -1151,100 +1117,33 @@ typename PointMatcher<T>::DataPoints PointMatcherIO<T>::loadVTK(std::istream& is
 			
 			safeGetLine(is, line); // remove rest of the parameter line including its line end;
 
+			Matrix descriptorData(dim, pointCount);
 			
-			// Load time data
-			if(isTimeSec || isTimeNsec)
+			if(isColorScalars && isBinary) 
 			{
+				std::vector<unsigned char> buffer(dim);
+				for (int i = 0; i < pointCount; ++i){
+					is.read(reinterpret_cast<char *>(&buffer.front()), dim);
+					for(int r=0; r < dim; ++r){
+						descriptorData(r, i) = buffer[r] / static_cast<T>(255.0);
+					}
+				}
+			} 
+			else 
+			{
+				if(!(type == "float" || type == "double"))
+					throw runtime_error(string("Field " + fieldName + " is " + type + " but can only be of type double or float."));
+
 				// Skip LOOKUP_TABLE line
 				if(skipLookupTable)
 				{
 					safeGetLine(is, line);
 				}
-				
-				typename std::map<std::string, SplitTime>::iterator it;
-
-				it = labelledSplitTime.find(name);
-				// reserve memory
-				if(it == labelledSplitTime.end())
-				{
-					SplitTime t;
-					t.high32 = Eigen::Matrix<unsigned int, Eigen::Dynamic, Eigen::Dynamic> (dim, pointCount);
-					t.low32 = t.high32;
-					labelledSplitTime[name] = t;
-				}
-
-				// Load seconds
-				if(isTimeSec)
-				{
-					assert(labelledSplitTime[name].isHigh32Found == false);
-					readVtkData(type, isBinary, labelledSplitTime[name].high32.transpose(), is);
-					labelledSplitTime[name].isHigh32Found = true;
-				}
-				
-				// Load nano seconds
-				if(isTimeNsec)
-				{
-					assert(labelledSplitTime[name].isLow32Found == false);
-					readVtkData(type, isBinary, labelledSplitTime[name].low32.transpose(), is);
-					labelledSplitTime[name].isLow32Found = true;
-				}
+				readVtkData(type, isBinary, descriptorData.transpose(), is);
 			}
-			else
-			{
-				
-				Matrix descriptorData(dim, pointCount);
-				
-				if(isColorScalars && isBinary) 
-				{
-					std::vector<unsigned char> buffer(dim);
-					for (int i = 0; i < pointCount; ++i){
-						is.read(reinterpret_cast<char *>(&buffer.front()), dim);
-						for(int r=0; r < dim; ++r){
-							descriptorData(r, i) = buffer[r] / static_cast<T>(255.0);
-						}
-					}
-				} 
-				else 
-				{
-					if(!(type == "float" || type == "double"))
-						throw runtime_error(string("Field " + fieldName + " is " + type + " but can only be of type double or float."));
+			loadedPoints.addDescriptor(name, descriptorData);
 
-					// Skip LOOKUP_TABLE line
-					if(skipLookupTable)
-					{
-						safeGetLine(is, line);
-					}
-					readVtkData(type, isBinary, descriptorData.transpose(), is);
-				}
-				loadedPoints.addDescriptor(name, descriptorData);
-			}
 		}
-	}
-
-	// Combine time and add to point cloud
-	typename std::map<std::string, SplitTime>::iterator it;
-	for(it=labelledSplitTime.begin(); it!=labelledSplitTime.end(); it++)
-	{
-		// Confirm that both parts were loaded
-		if(it->second.isHigh32Found == false)
-		{
-			throw runtime_error(string("Missing time field representing the higher 32 bits. Expecting SCALARS with name " + it->first + "_splitTime_high32 in the VTK file."));
-		}
-		
-		if(it->second.isLow32Found == false)
-		{
-			throw runtime_error(string("Missing time field representing the lower 32 bits. Expecting SCALARS with name " + it->first + "_splitTime_low32 in the VTK file."));
-		}
-
-		// Loop through points
-		Int64Matrix timeData(1,pointCount);
-		for(int i=0; i<it->second.high32.cols(); i++)
-		{
-		
-			timeData(0,i) = (((std::int64_t) it->second.high32(0,i)) << 32) | ((std::int64_t) it->second.low32(0,i));
-		}
-
-		loadedPoints.addTime(it->first, timeData);
 	}
 	
 	return loadedPoints;
@@ -1498,7 +1397,6 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPLY(std::istream& 
 	
 	int rowIdFeatures = 0;
 	int rowIdDescriptors = 0;
-	int rowIdTime= 0;
 	
 	LabelGenerator featLabelGen, descLabelGen, timeLabelGen;
 
@@ -1529,13 +1427,8 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPLY(std::istream& 
 						descLabelGen.add(supLabel.internalName);
 						rowIdDescriptors++;
 						break;
-					case TIME:
-						it->pmRowID = rowIdTime;
-						timeLabelGen.add(supLabel.internalName);
-						rowIdTime++;
-						break;
 					default:
-						throw runtime_error(string("PLY Implementation Error: encounter a type different from FEATURE, DESCRIPTOR and TIME. Implementation not supported. See the definition of 'enum PMPropTypes'"));
+						throw runtime_error(string("PLY Implementation Error: encounter a type different from FEATURE and DESCRIPTOR. Implementation not supported. See the definition of 'enum PMPropTypes'"));
 						break;
 				}
 
@@ -1567,8 +1460,6 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPLY(std::istream& 
 
 	Matrix features = Matrix(featDim, nbPoints);
 	Matrix descriptors = Matrix(descDim, nbPoints);
-	Int64Matrix times = Int64Matrix(timeDim, nbPoints);
-
 
 	///////////////////////////
 	// 4- PARSE PLY DATA (vertex)
@@ -1603,9 +1494,6 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPLY(std::istream& 
 				case DESCRIPTOR:
 					descriptors(row, col) = value;
 					break;
-				case TIME:
-					times(row, col) = value;
-					break;
 				case UNSUPPORTED:
 					throw runtime_error("Implementation error in loadPLY(). This should not throw.");
 					break;
@@ -1632,12 +1520,6 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPLY(std::istream& 
 	{
 		loadedPoints.descriptors = descriptors;
 		loadedPoints.descriptorLabels = descLabelGen.getLabels();
-	}
-
-	if(times.rows() > 0)
-	{
-		loadedPoints.times = times;
-		loadedPoints.timeLabels = timeLabelGen.getLabels();	
 	}
 
 	// Ensure homogeous coordinates
@@ -2080,7 +1962,6 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPCD(std::istream& 
 	
 	int rowIdFeatures = 0;
 	int rowIdDescriptors = 0;
-	int rowIdTime= 0;
 	
 	LabelGenerator featLabelGen, descLabelGen, timeLabelGen;
 
@@ -2119,13 +2000,8 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPCD(std::istream& 
 						descLabelGen.add(supLabel.internalName, prop.count);
 						rowIdDescriptors += prop.count;
 						break;
-					case TIME:
-						header.properties[i].pmRowID = rowIdTime;
-						timeLabelGen.add(supLabel.internalName, prop.count);
-						rowIdTime += prop.count;
-						break;
 					default:
-						throw runtime_error(string("PCD Implementation Error: encounter a type different from FEATURE, DESCRIPTOR and TIME. Implementation not supported. See the definition of 'enum PMPropTypes'"));
+						throw runtime_error(string("PCD Implementation Error: encounter a type different from FEATURE and DESCRIPTOR. Implementation not supported. See the definition of 'enum PMPropTypes'"));
 						break;
 				}
 
@@ -2154,14 +2030,11 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPCD(std::istream& 
 
 	const unsigned int featDim = featLabelGen.getLabels().totalDim();
 	const unsigned int descDim = descLabelGen.getLabels().totalDim();
-	const unsigned int timeDim = timeLabelGen.getLabels().totalDim();
-	const unsigned int totalDim = featDim + descDim + timeDim;
+	const unsigned int totalDim = featDim + descDim;
 	const unsigned int nbPoints = header.nbPoints;
 
 	Matrix features = Matrix(featDim, nbPoints);
 	Matrix descriptors = Matrix(descDim, nbPoints);
-	Int64Matrix times = Int64Matrix(timeDim, nbPoints);
-
 
 	///////////////////////////
 	// 4- PARSE PCD DATA
@@ -2205,9 +2078,6 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPCD(std::istream& 
 					case DESCRIPTOR:
 						descriptors(row+j, col) = boost::lexical_cast<T>(tokens[fileCol]);
 						break;
-					case TIME:
-						times(row+j, col) = boost::lexical_cast<std::int64_t>(tokens[fileCol]);
-						break;
 					case UNSUPPORTED:
 						throw runtime_error("Implementation error in loadPCD(). This should not throw.");
 						break;
@@ -2238,12 +2108,6 @@ typename PointMatcherIO<T>::DataPoints PointMatcherIO<T>::loadPCD(std::istream& 
 	{
 		loadedPoints.descriptors = descriptors;
 		loadedPoints.descriptorLabels = descLabelGen.getLabels();
-	}
-
-	if(times.rows() > 0)
-	{
-		loadedPoints.times = times;
-		loadedPoints.timeLabels = timeLabelGen.getLabels();	
 	}
 
 	// Ensure homogeous coordinates

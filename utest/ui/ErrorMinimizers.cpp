@@ -42,7 +42,6 @@ TEST_F(ErrorMinimizerTest, ErrorElements)
     const unsigned int nbPoints = 100;
     const unsigned int dimFeatures = 4;
     const unsigned int dimDescriptors = 3;
-    const unsigned int dimTime = 2;
 
     // Fake DataPoints
     PM::Matrix randFeat = PM::Matrix::Random(dimFeatures, nbPoints);
@@ -56,13 +55,9 @@ TEST_F(ErrorMinimizerTest, ErrorElements)
     DP::Labels descLabels;
     descLabels.push_back(DP::Label("dummyDesc", 3));
 
-    PM::Int64Matrix randTimes = PM::Int64Matrix::Random(dimTime, nbPoints);
-    DP::Labels timeLabels;
-    timeLabels.push_back(DP::Label("dummyTime", 2));
-
     // Construct the point cloud from the generated matrices
-    DP request = DP(randFeat, featLabels, randDesc, descLabels, randTimes, timeLabels);
-    DP source = DP(randFeat, featLabels, randDesc, descLabels, randTimes, timeLabels);
+    DP request = DP(randFeat, featLabels, randDesc, descLabels);
+    DP source = DP(randFeat, featLabels, randDesc, descLabels);
 
     // Fake Weights
     PM::OutlierWeights weights = PM::OutlierWeights::Ones(1, nbPoints);
@@ -90,7 +85,4 @@ TEST_F(ErrorMinimizerTest, ErrorElements)
 
     // check descriptor
     EXPECT_EQ(mPts.reference.getDescriptorDim(), dimDescriptors);
-
-    // check time
-    EXPECT_EQ(mPts.reference.getTimeDim(), dimTime);
 }

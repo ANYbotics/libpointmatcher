@@ -111,7 +111,6 @@ public:
 	virtual void inPlaceFilter(DataPoints& cloud);
 
 private:
-	static constexpr std::size_t featDimension2d{3};
 	static constexpr std::size_t featDimension3d{4};
 
 	template<std::size_t dim>

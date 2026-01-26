@@ -65,7 +65,6 @@ struct PointMatcherIO
 		{
 			FEATURE,
 			DESCRIPTOR,
-			TIME,
 			UNSUPPORTED
 		};
 
@@ -149,10 +148,7 @@ struct PointMatcherIO
 				{"eigVectors", "eigVectors2X", DESCRIPTOR},
 				{"eigVectors", "eigVectors2Y", DESCRIPTOR},
 				{"eigVectors", "eigVectors2Z", DESCRIPTOR},
-				{"intensity", "intensity", DESCRIPTOR},
-				//{"internalName", "externalName", DESCRIPTOR},
-				{"time", "time", TIME}
-				//{"internalName", "externalName", TIME}
+				{"intensity", "intensity", DESCRIPTOR}
 			};
 
 			return labels;

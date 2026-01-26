@@ -75,15 +75,8 @@ void OctreeGridDataPointsFilter<T>::inPlaceFilter(DataPoints& cloud)
 	
 	assert(featDim == 4 or featDim == 3);
 
-	// Dispatch to dimension-specific filters.
-	if(featDim == featDimension2d) {
-		// Quadtree, 3D case.
-		this->sample<2>(cloud);
-	}
-	else if(featDim == featDimension3d) {
-		// Octree, 3D case.
-		this->sample<3>(cloud);
-	}
+	// Octree, 3D case.
+	this->sample<3>(cloud);
 }
 
 template<typename T>

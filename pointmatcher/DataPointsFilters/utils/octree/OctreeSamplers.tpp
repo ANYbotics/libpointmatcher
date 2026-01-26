@@ -152,7 +152,6 @@ bool CentroidSampler<T>::operator()(Octree_<T,dim>& oc)
 	{			
 		const int featDim(pts.features.rows());
 		const int descDim(pts.descriptors.rows());
-		const int timeDim(pts.times.rows());
 		
 		auto* data = oc.getData();
 		const std::size_t nbData = (*data).size();
@@ -181,10 +180,6 @@ bool CentroidSampler<T>::operator()(Octree_<T,dim>& oc)
 			if (pts.descriptors.cols() > 0)
 				for (int d = 0; d < descDim; ++d)
 					pts.descriptors(d,j) += pts.descriptors(d,i);
-			
-			if (pts.times.cols() > 0)
-				for (int t = 0; t < timeDim; ++t)
-					pts.times(t,j) += pts.times(t,i);	
 		}
 		
 		// Normalize sums to get centroid (average)
@@ -194,10 +189,6 @@ bool CentroidSampler<T>::operator()(Octree_<T,dim>& oc)
 		if (pts.descriptors.cols() > 0)
 			for (int d = 0; d < descDim; ++d)
 				pts.descriptors(d,j) /= T(nbData);
-		
-		if (pts.times.cols() > 0)
-			for (int t = 0; t < timeDim; ++t)
-				pts.times(t,j) /= T(nbData);	
 								
 		//Switch columns j and idx
 		pts.swapCols(idx, j);

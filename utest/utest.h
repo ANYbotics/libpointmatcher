@@ -20,7 +20,6 @@ extern std::string dataPath;
 
 extern DP ref3D;
 extern DP data3D;
-extern PM::TransformationParameters validT2d;
 extern PM::TransformationParameters validT3d;
 
 //---------------------------
@@ -50,7 +49,7 @@ public:
 		//dumpVTK();
 
 		const PM::TransformationParameters testT = icp(data3D, ref3D);
-		const int dim = validT2d.cols();
+		const int dim = validT3d.cols();
 
 		const BOOST_AUTO(validTrans, validT3d.block(0, dim-1, dim-1, 1).norm());
 		const BOOST_AUTO(testTrans, testT.block(0, dim-1, dim-1, 1).norm());

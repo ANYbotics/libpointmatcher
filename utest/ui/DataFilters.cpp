@@ -45,7 +45,6 @@ public:
     {
         const int dimFeatures = 4;
         const int dimDescriptors = 3;
-        const int dimTime = 2;
 
         PM::Matrix randFeat = PM::Matrix::Random(dimFeatures, nbPoints);
         DP::Labels featLabels;
@@ -58,12 +57,8 @@ public:
         DP::Labels descLabels;
         descLabels.push_back(DP::Label("dummyDesc", 3));
 
-        PM::Int64Matrix randTimes = PM::Int64Matrix::Random(dimTime, nbPoints);
-        DP::Labels timeLabels;
-        timeLabels.push_back(DP::Label("dummyTime", 2));
-
         // Construct the point cloud from the generated matrices
-        DP pointCloud = DP(randFeat, featLabels, randDesc, descLabels, randTimes, timeLabels);
+        DP pointCloud = DP(randFeat, featLabels, randDesc, descLabels);
 
         return pointCloud;
     }
@@ -217,7 +212,6 @@ TEST_F(DataFilterTest, OctreeGridDataPointsFilter)
                     //Check number of points
                     EXPECT_EQ(cloud.getNbPoints(), filteredCloud.getNbPoints());
                     EXPECT_EQ(cloud.getDescriptorDim(), filteredCloud.getDescriptorDim());
-                    EXPECT_EQ(cloud.getTimeDim(), filteredCloud.getTimeDim());
 
                     EXPECT_EQ(filteredCloud.getNbPoints(), nbPts);
                 }
@@ -276,7 +270,6 @@ TEST_F(DataFilterTest, NormalSpaceDataPointsFilter)
                 //Check number of points
                 EXPECT_EQ(cloud.getNbPoints(), filteredCloud.getNbPoints());
                 EXPECT_EQ(cloud.getDescriptorDim(), filteredCloud.getDescriptorDim());
-                EXPECT_EQ(cloud.getTimeDim(), filteredCloud.getTimeDim());
 
                 EXPECT_EQ(filteredCloud.getNbPoints(), nbPts);
             }

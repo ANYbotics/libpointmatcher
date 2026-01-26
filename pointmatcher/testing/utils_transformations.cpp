@@ -29,9 +29,6 @@ bool isApprox(const PM::AffineTransform& transformA, const PM::AffineTransform& 
 {
     const TransformationError error{ computeError(transformA, transformB) };
 
-    // Compute delta between A and B.
-    const PM::AffineTransform deltaTransform{ transformA.inverse() * transformB };
-
     // Translation
     std::stringstream messageStream;
     bool areApproxEqual{ true };

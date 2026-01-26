@@ -72,25 +72,25 @@ public:
 TEST_F(DataFilterTest, IdentityDataPointsFilter)
 {
     // build test cloud
-    DP ref2DCopy(ref2D);
+    DP ref3DCopy(ref3D);
 
     // apply and checked
     addFilter("IdentityDataPointsFilter");
-    icp.readingDataPointsFilters.apply(ref2DCopy);
-    EXPECT_TRUE(ref2D == ref2DCopy);
+    icp.readingDataPointsFilters.apply(ref3DCopy);
+    EXPECT_TRUE(ref3D == ref3DCopy);
 }
 
 TEST_F(DataFilterTest, RemoveNaNDataPointsFilter)
 {
     // build test cloud
-    DP ref2DCopy(ref2D);
+    DP ref3DCopy(ref3D);
     int goodCount(0);
     const NumericType nan(std::numeric_limits<NumericType>::quiet_NaN());
-    for (int i(0); i < ref2DCopy.features.cols(); ++i)
+    for (int i(0); i < ref3DCopy.features.cols(); ++i)
     {
         if (rand() % 3 == 0)
         {
-            ref2DCopy.features(rand() % ref2DCopy.features.rows(), i) = nan;
+            ref3DCopy.features(rand() % ref3DCopy.features.rows(), i) = nan;
         }
         else
             ++goodCount;
@@ -98,8 +98,8 @@ TEST_F(DataFilterTest, RemoveNaNDataPointsFilter)
 
     // apply and checked
     addFilter("RemoveNaNDataPointsFilter");
-    icp.readingDataPointsFilters.apply(ref2DCopy);
-    EXPECT_TRUE(ref2DCopy.features.cols() == goodCount);
+    icp.readingDataPointsFilters.apply(ref3DCopy);
+    EXPECT_TRUE(ref3DCopy.features.cols() == goodCount);
 }
 
 TEST_F(DataFilterTest, SurfaceNormalDataPointsFilter)
@@ -116,7 +116,6 @@ TEST_F(DataFilterTest, SurfaceNormalDataPointsFilter)
     // FIXME: the parameter keepMatchedIds seems to do nothing...
 
     addFilter("SurfaceNormalDataPointsFilter", params);
-    validate2dTransformation();
     validate3dTransformation();
 
     // TODO: standardize how filter are tested:
@@ -149,13 +148,6 @@ TEST_F(DataFilterTest, MaxDensityDataPointsFilter)
 
         addFilter("MaxDensityDataPointsFilter", params);
 
-        // FIXME BUG: the density in 2D is not well computed
-        //validate2dTransformation();
-
-        //double nbInitPts = data2D.features.cols();
-        //double nbRemainingPts = icp.getPrefilteredReadingPtsCount();
-        //EXPECT_TRUE(nbRemainingPts < nbInitPts);
-
         validate3dTransformation();
 
         double nbInitPts = data3D.features.cols();
@@ -172,7 +164,6 @@ TEST_F(DataFilterTest, OrientNormalsDataPointsFilter)
     icp.readingDataPointsFilters.push_back(extraDataPointFilter);
     addFilter("ObservationDirectionDataPointsFilter");
     addFilter("OrientNormalsDataPointsFilter", { { "towardCenter", toParam(false) } });
-    validate2dTransformation();
     validate3dTransformation();
 }
 
@@ -190,7 +181,6 @@ TEST_F(DataFilterTest, RandomSamplingDataPointsFilter)
 
             icp.readingDataPointsFilters.clear();
             addFilter("RandomSamplingDataPointsFilter", params);
-            validate2dTransformation();
             validate3dTransformation();
         }
     }
@@ -239,7 +229,6 @@ TEST_F(DataFilterTest, OctreeGridDataPointsFilter)
                 //Validate transformation
                 icp.readingDataPointsFilters.clear();
                 addFilter("OctreeGridDataPointsFilter", params);
-                validate2dTransformation();
                 validate3dTransformation();
             }
 }
@@ -250,7 +239,6 @@ TEST_F(DataFilterTest, NormalSpaceDataPointsFilter)
     DP cloud = generateRandomDataPoints(nbPts);
     params = PM::Parameters();
 
-    //const size_t nbPts2D = ref2D.getNbPoints();
     const size_t nbPts3D = ref3D.getNbPoints();
 
     std::shared_ptr<PM::DataPointsFilter> nssFilter;
@@ -266,7 +254,7 @@ TEST_F(DataFilterTest, NormalSpaceDataPointsFilter)
     normalFilter->inPlaceFilter(cloud);
 
     //Evaluate filter
-    std::vector<size_t> samples = { /* 2*nbPts2D/3, nbPts2D,*/ 1500, 5000, nbPts, nbPts3D };
+    std::vector<size_t> samples = { nbPts, nbPts3D };
     for (const NumericType epsilon : { M_PI / 6., M_PI / 32., M_PI / 64. })
         for (const size_t nbSample : samples)
         {
@@ -283,18 +271,6 @@ TEST_F(DataFilterTest, NormalSpaceDataPointsFilter)
 
             const DP filteredCloud = nssFilter->filter(cloud);
 
-            /*
-			if(nbSample <= nbPts2D)
-			{
-				validate2dTransformation();
-				EXPECT_LE(filteredCloud.getNbPoints(), nbPts2D);
-				continue;
-			}
-			else if (nbSample == nbPts3D)
-			{
-				EXPECT_EQ(filteredCloud.getNbPoints(), nbPts3D);
-			}
-			else */
             if (nbSample == nbPts)
             {
                 //Check number of points
@@ -322,28 +298,24 @@ TEST_F(DataFilterTest, DistanceLimitDataPointsFilter)
     params["dim"] = "0";
     icp.readingDataPointsFilters.clear();
     addFilter("DistanceLimitDataPointsFilter", params);
-    validate2dTransformation();
     validate3dTransformation();
 
     // Filter on y axis
     params["dim"] = "1";
     icp.readingDataPointsFilters.clear();
     addFilter("DistanceLimitDataPointsFilter", params);
-    validate2dTransformation();
     validate3dTransformation();
 
     // Filter on z axis (not existing)
     params["dim"] = "2";
     icp.readingDataPointsFilters.clear();
     addFilter("DistanceLimitDataPointsFilter", params);
-    EXPECT_ANY_THROW(validate2dTransformation());
     validate3dTransformation();
 
     // Filter on a radius
     params["dim"] = "-1";
     icp.readingDataPointsFilters.clear();
     addFilter("DistanceLimitDataPointsFilter", params);
-    validate2dTransformation();
     validate3dTransformation();
 
     // Parameter outside valid range
@@ -361,29 +333,24 @@ TEST_F(DataFilterTest, DistanceLimitDataPointsFilter)
     params["dim"] = "0";
     icp.readingDataPointsFilters.clear();
     addFilter("DistanceLimitDataPointsFilter", params);
-    validate2dTransformation();
     validate3dTransformation();
 
     // Filter on y axis
     params["dim"] = "1";
     icp.readingDataPointsFilters.clear();
     addFilter("DistanceLimitDataPointsFilter", params);
-    validate2dTransformation();
     validate3dTransformation();
 
-    //TODO: move that to specific 2D test
     // Filter on z axis (not existing)
     params["dim"] = "2";
     icp.readingDataPointsFilters.clear();
     addFilter("DistanceLimitDataPointsFilter", params);
-    EXPECT_ANY_THROW(validate2dTransformation());
     validate3dTransformation();
 
     // Filter on a radius
     params["dim"] = "-1";
     icp.readingDataPointsFilters.clear();
     addFilter("DistanceLimitDataPointsFilter", params);
-    validate2dTransformation();
     validate3dTransformation();
 }
 

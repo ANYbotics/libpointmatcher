@@ -107,17 +107,7 @@ void TransformationCheckersImpl<T>::DifferentialTransformationChecker::init(cons
 	rotations.clear();
 	translations.clear();
 	
-	if (parameters.rows() == 4)
-	{
-		rotations.push_back(Quaternion(Eigen::Matrix<T,3,3>(parameters.topLeftCorner(3,3))));
-	}
-	else
-	{
-		// Handle the 2D case
-		Eigen::Matrix<T,3,3> m(Matrix::Identity(3,3));
-		m.topLeftCorner(2,2) = parameters.topLeftCorner(2,2);
-		rotations.push_back(Quaternion(m));
-	}
+	rotations.push_back(Quaternion(Eigen::Matrix<T,3,3>(parameters.topLeftCorner(3,3))));
 	
 	const unsigned int nbRows = parameters.rows()-1;
 	translations.push_back(parameters.topRightCorner(nbRows,1));
@@ -183,12 +173,7 @@ template<typename T>
 void TransformationCheckersImpl<T>::BoundTransformationChecker::init(const TransformationParameters& parameters, bool& /*iterate*/)
 {
 	this->conditionVariables.setZero(2);
-	if (parameters.rows() == 4)
-		initialRotation3D = Quaternion(Eigen::Matrix<T,3,3>(parameters.topLeftCorner(3,3)));
-	else if (parameters.rows() == 3)
-		initialRotation2D = acos(parameters(0,0));
-	else
-		throw runtime_error("BoundTransformationChecker only works in 2D or 3D");
+	initialRotation3D = Quaternion(Eigen::Matrix<T,3,3>(parameters.topLeftCorner(3,3)));
 		
 	const unsigned int nbRows = parameters.rows()-1;
 	initialTranslation = parameters.topRightCorner(nbRows,1);
@@ -199,18 +184,8 @@ void TransformationCheckersImpl<T>::BoundTransformationChecker::check(const Tran
 {
 	typedef typename PointMatcher<T>::ConvergenceError ConvergenceError;
 	
-	if (parameters.rows() == 4)
-	{
-		const Quaternion currentRotation = Quaternion(Eigen::Matrix<T,3,3>(parameters.topLeftCorner(3,3)));
-		this->conditionVariables(0) = currentRotation.angularDistance(initialRotation3D);
-	}
-	else if (parameters.rows() == 3)
-	{
-		const T currentRotation(acos(parameters(0,0)));
-		this->conditionVariables(0) = normalizeAngle(currentRotation - initialRotation2D);
-	}
-	else
-		assert(false);
+	const Quaternion currentRotation = Quaternion(Eigen::Matrix<T,3,3>(parameters.topLeftCorner(3,3)));
+	this->conditionVariables(0) = currentRotation.angularDistance(initialRotation3D);
 	const unsigned int nbRows = parameters.rows()-1;
 	const Vector currentTranslation = parameters.topRightCorner(nbRows,1);
 	this->conditionVariables(1) = (currentTranslation - initialTranslation).norm();

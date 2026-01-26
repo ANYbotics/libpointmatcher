@@ -42,8 +42,6 @@ using namespace PointMatcherSupport;
 
 std::string dataPath;
 
-DP ref2D;
-DP data2D;
 DP ref3D;
 DP data3D;
 PM::TransformationParameters validT2d;
@@ -71,8 +69,6 @@ int main(int argc, char **argv)
 #endif
 
 	// Load point cloud for all test
-	ref2D =  DP::load(dataPath + "2D_oneBox.csv");
-	data2D = DP::load(dataPath + "2D_twoBoxes.csv");
 	ref3D =  DP::load(dataPath + "car_cloud400.csv");
 	data3D = DP::load(dataPath + "car_cloud401.csv");
 

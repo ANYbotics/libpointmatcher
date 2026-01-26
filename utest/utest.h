@@ -18,8 +18,6 @@ typedef PM::DataPoints DP;
 
 extern std::string dataPath;
 
-extern DP ref2D;
-extern DP data2D;
 extern DP ref3D;
 extern DP data3D;
 extern PM::TransformationParameters validT2d;
@@ -45,21 +43,6 @@ public:
 				"VTKFileInspector", 
 				{{"baseFileName", "./unitTest"}}
 			);
-	}
-	
-	void validate2dTransformation()
-	{
-		const PM::TransformationParameters testT = icp(data2D, ref2D);
-		const int dim = validT2d.cols();
-
-		const BOOST_AUTO(validTrans, validT2d.block(0, dim-1, dim-1, 1).norm());
-		const BOOST_AUTO(testTrans, testT.block(0, dim-1, dim-1, 1).norm());
-	
-		const BOOST_AUTO(validAngle, acos(validT2d(0,0)));
-		const BOOST_AUTO(testAngle, acos(testT(0,0)));
-		
-		EXPECT_NEAR(validTrans, testTrans, 0.05);
-		EXPECT_NEAR(validAngle, testAngle, 0.05);
 	}
 
 	void validate3dTransformation()

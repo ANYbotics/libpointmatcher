@@ -65,19 +65,17 @@ struct PointToPlaneErrorMinimizer: public PointMatcher<T>::ErrorMinimizer
 
     inline static const std::string description()
     {
-        return "Point-to-plane error (or point-to-line in 2D). Per \\cite{Chen1991Point2Plane}.";
+        return "Point-to-plane error. Per \\cite{Chen1991Point2Plane}.";
     }
 
     inline static const ParametersDoc availableParameters()
     {
         return {
-                {"force2D", "If set to true(1), the minimization will be forced to give a solution in 2D (i.e., on the XY-plane) even with 3D inputs.", "0", "0", "1", &P::Comp<bool>},
                 {"force4DOF", "If set to true(1), the minimization will optimize only yaw and translation, pitch and roll will follow the prior.", "0", "0", "1", &P::Comp<bool>}
 
         };
     }
 
-    const bool force2D;
     const bool force4DOF;
 
     PointToPlaneErrorMinimizer(const Parameters& params = Parameters());
@@ -86,15 +84,15 @@ struct PointToPlaneErrorMinimizer: public PointMatcher<T>::ErrorMinimizer
     //! Builds linear optimization constraints based on point-matching with a point-to-plane cost.
     //!  Reference: "A Review of Point Cloud Registration Algorithms for Mobile Robotics" by Pomerleau et al (2015),
     //! @param mPts[in]   Error Elements containing correspondences between reading and references.
-    //! @param A[out]     Covariance matrix of the point-to-plane error. Size (6,6) for 3D, and (3,3) for 2D problems.
-    //! @param b[out]     Vector of weighted residuals. Size (6,1) for 3D and (3,1) for 2D problems.
+    //! @param A[out]     Covariance matrix of the point-to-plane error. Size (6,6) for 3D.
+    //! @param b[out]     Vector of weighted residuals. Size (6,1) for 3D.
     void formulatePointMatchingConstraints(const ErrorElements& mPts, Matrix& A, Vector& b) const;
 
     virtual TransformationParameters compute(ErrorElements& mPts);
     virtual T getResidualError(const DataPoints& filteredReading, const DataPoints& filteredReference, const OutlierWeights& outlierWeights, const Matches& matches) const;
     virtual T getOverlap() const;
 
-    static T computeResidualError(ErrorElements mPts, const bool& force2D);
+    static T computeResidualError(ErrorElements mPts);
 };
 
 //! Solves a linear system of the form Ax=b employing the Jacobi SVD algorithm (https://eigen.tuxfamily.org/dox/classEigen_1_1JacobiSVD.html)

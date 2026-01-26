@@ -4,15 +4,6 @@ using namespace std;
 using namespace PointMatcherSupport;
 
 
-static inline Eigen::Transform<NumericType, 2, Eigen::Affine> buildUpTransformation2D(const Eigen::Matrix<NumericType, 2, 1>& translation,
-                                                                                      const Eigen::Rotation2D<NumericType>& rotation,
-                                                                                      const NumericType scale = 1.0)
-{
-    const Eigen::Transform<NumericType, 2, Eigen::Affine> transformation =
-        Eigen::Translation<NumericType, 2>(translation) * rotation * Eigen::Scaling(scale);
-    return transformation;
-}
-
 static inline Eigen::Transform<NumericType, 3, Eigen::Affine> buildUpTransformation3D(const Eigen::Matrix<NumericType, 3, 1>& translation,
                                                                                       const PM::Quaternion& rotation,
                                                                                       const NumericType scale = 1.0)
@@ -103,14 +94,14 @@ public:
 TEST_F(TransformationCheckerTest, CounterTransformationChecker)
 {
     addFilter("CounterTransformationChecker", { { "maxIterationCount", toParam(20) } });
-    validate2dTransformation();
+    validate3dTransformation();
 }
 
 TEST_F(TransformationCheckerTest, DifferentialTransformationChecker)
 {
     addFilter("DifferentialTransformationChecker",
               { { "minDiffRotErr", toParam(0.001) }, { "minDiffTransErr", toParam(0.001) }, { "smoothLength", toParam(4) } });
-    validate2dTransformation();
+    validate3dTransformation();
 }
 
 TEST_F(TransformationCheckerTest, BoundTransformationChecker)
@@ -124,7 +115,7 @@ TEST_F(TransformationCheckerTest, BoundTransformationChecker)
     icp.transformationCheckers.push_back(extraTransformCheck);
 
     addFilter("BoundTransformationChecker", { { "maxRotationNorm", toParam(1.0) }, { "maxTranslationNorm", toParam(1.0) } });
-    validate2dTransformation();
+    validate3dTransformation();
 }
 
 //---------------------------
@@ -152,71 +143,6 @@ TEST(Transformation, RigidTransformationParameterCheck)
     {
         T_3D = rigidTrans->correctParameters(T_3D);
         ASSERT_TRUE(rigidTrans->checkParameters(T_3D));
-    }
-
-    //-------------------------------------
-    // Construct a 2D non-orthogonal matrix
-    PM::Matrix T_2D_non_ortho = PM::Matrix::Identity(3, 3);
-    T_2D_non_ortho(0, 0) = 0.8;
-    T_2D_non_ortho(0, 1) = -0.5;
-    T_2D_non_ortho(1, 0) = 0.5;
-    T_2D_non_ortho(1, 1) = 0.8;
-
-    EXPECT_FALSE(rigidTrans->checkParameters(T_2D_non_ortho));
-
-    EXPECT_THROW(rigidTrans->compute(data2D, T_2D_non_ortho), TransformationError);
-    EXPECT_THROW(rigidTrans->inPlaceCompute(T_2D_non_ortho, data2D), TransformationError);
-
-    // Check stability over iterations
-    for (int i = 0; i < 10; i++)
-    {
-        T_2D_non_ortho = rigidTrans->correctParameters(T_2D_non_ortho);
-        EXPECT_TRUE(rigidTrans->checkParameters(T_2D_non_ortho));
-    }
-
-    //-------------------------------------
-    // Construct a 2D reflection matrix
-    PM::Matrix T_2D_reflection = PM::Matrix::Identity(3, 3);
-    T_2D_reflection(1, 1) = -1;
-
-    EXPECT_THROW(rigidTrans->correctParameters(T_2D_reflection), TransformationError);
-}
-
-TEST(Transformation, ComputeRigidTransformDataPoints2D)
-{
-    std::shared_ptr<PM::Transformation> transformator = PM::get().REG(Transformation).create("RigidTransformation");
-
-    // Identity.
-    {
-        const Eigen::Matrix<NumericType, 2, 1> translation{ 0, 0 };
-        const Eigen::Rotation2D<NumericType> rotation{ 0 };
-        const Eigen::Transform<NumericType, 2, Eigen::Affine> transformation = buildUpTransformation2D(translation, rotation);
-        // Transform and assert on the result.
-        assertOnDataPointsTransformation(data2D, transformation.matrix(), transformator);
-    }
-    // Pure translation.
-    {
-        const Eigen::Matrix<NumericType, 2, 1> translation{ -1.0001, 34.5 };
-        const Eigen::Rotation2D<NumericType> rotation{ 0 };
-        const Eigen::Transform<NumericType, 2, Eigen::Affine> transformation = buildUpTransformation2D(translation, rotation);
-        // Transform and assert on the result.
-        assertOnDataPointsTransformation(data2D, transformation.matrix(), transformator);
-    }
-    // Pure rotation.
-    {
-        const Eigen::Matrix<NumericType, 2, 1> translation{ 0, 0 };
-        const Eigen::Rotation2D<NumericType> rotation{ 3.53453 };
-        const Eigen::Transform<NumericType, 2, Eigen::Affine> transformation = buildUpTransformation2D(translation, rotation);
-        // Transform and assert on the result.
-        assertOnDataPointsTransformation(data2D, transformation.matrix(), transformator);
-    }
-    // Translation + rotation.
-    {
-        const Eigen::Matrix<NumericType, 2, 1> translation{ -3.11, 100.222 };
-        const Eigen::Rotation2D<NumericType> rotation{ -123.3 };
-        const Eigen::Transform<NumericType, 2, Eigen::Affine> transformation = buildUpTransformation2D(translation, rotation);
-        // Transform and assert on the result.
-        assertOnDataPointsTransformation(data2D, transformation.matrix(), transformator);
     }
 }
 

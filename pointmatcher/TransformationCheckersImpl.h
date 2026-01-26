@@ -127,7 +127,6 @@ struct TransformationCheckersImpl
 		
 	protected:
 		Quaternion initialRotation3D;
-		T initialRotation2D;
 		Vector initialTranslation;
 		
 	public:

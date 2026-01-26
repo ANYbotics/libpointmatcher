@@ -63,19 +63,9 @@ NormalSpaceDataPointsFilter<T>::filter(const DataPoints& input)
 	return output;
 }
 
-//TODO: Add support for 2D by building histogram of polar coordinate with uniform sampling
-
 template <typename T>
 void NormalSpaceDataPointsFilter<T>::inPlaceFilter(DataPoints& cloud)
 {
-	//check dimension
-	const Index featDim{cloud.features.rows()};
-	if(featDim < 4) //3D case support only
-	{
-		std::cerr << "ERROR: NormalSpaceDataPointsFilter does not support 2D point cloud yet (does nothing)" << std::endl;
-		return;
-	}
-
 	//Check number of points
 	const Index nbPoints{cloud.getNbPoints()};
 	if(nbSample >= std::size_t(nbPoints))

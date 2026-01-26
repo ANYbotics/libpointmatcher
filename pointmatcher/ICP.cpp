@@ -136,10 +136,7 @@ void PointMatcher<T>::ICPChainBase::loadFromYaml(std::istream& in)
 	usedModuleTypes.insert(createModuleFromRegistrar("errorMinimizer", doc, pm.REG(ErrorMinimizer), errorMinimizer));
 
 	// See if to use a rigid transformation
-	if (nodeVal("errorMinimizer", doc) != "PointToPointSimilarityErrorMinimizer")
-		this->transformations.push_back(std::make_shared<typename TransformationsImpl<T>::RigidTransformation>());
-	else
-		this->transformations.push_back(std::make_shared<typename TransformationsImpl<T>::SimilarityTransformation>());
+	this->transformations.push_back(std::make_shared<typename TransformationsImpl<T>::RigidTransformation>());
 	
 	usedModuleTypes.insert(createModulesFromRegistrar("transformationCheckers", doc, pm.REG(TransformationChecker), transformationCheckers));
 	usedModuleTypes.insert(createModuleFromRegistrar("inspector", doc, pm.REG(Inspector),inspector));

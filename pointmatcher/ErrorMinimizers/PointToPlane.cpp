@@ -448,10 +448,6 @@ T PointToPlaneErrorMinimizer<T>::getOverlap() const
 
 		// sort up to half the values
 		nth_element(values.begin(), values.begin() + (values.size() * 0.5), values.end());
-
-		// extract median value
-		const T medianDensity = values[values.size() * 0.5];
-		const T medianRadius = 1.0/pow(medianDensity, 1/3.0);
 	}
 	else
 	{

@@ -31,14 +31,6 @@ public:
 	}
 };
 
-
-TEST_F(ErrorMinimizerTest, PointToPointErrorMinimizer)
-{
-	setError("PointToPointErrorMinimizer");
-	validate2dTransformation();
-	validate3dTransformation();
-}
-
 TEST_F(ErrorMinimizerTest, PointToPlaneErrorMinimizer)
 {
 	setError("PointToPlaneErrorMinimizer");

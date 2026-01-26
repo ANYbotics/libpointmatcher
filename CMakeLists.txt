@@ -35,10 +35,6 @@ set(POINTMATCHER_SRC
 	pointmatcher/InspectorsImpl.cpp
 #ErrorMinimizers
 	pointmatcher/ErrorMinimizers/PointToPlane.cpp
-	pointmatcher/ErrorMinimizers/PointToPlaneWithCov.cpp
-	pointmatcher/ErrorMinimizers/PointToPoint.cpp
-	pointmatcher/ErrorMinimizers/PointToPointWithCov.cpp
-	pointmatcher/ErrorMinimizers/PointToPointSimilarity.cpp
 	pointmatcher/ErrorMinimizers/Identity.cpp
 #DataPointsFilters	
 	pointmatcher/DataPointsFilters/Identity.cpp

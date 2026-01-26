@@ -103,7 +103,7 @@ struct MatchersImpl
 		
 		const int knn;
 		const T epsilon;
-		const NNSearchType searchType;
+		const NNSearchType searchType{NNSearchType::KDTREE_LINEAR_HEAP}; // kd-tree with linear heap, good for small knn (~up to 30)
 		const T maxDist;
 
 	protected:
@@ -115,37 +115,6 @@ struct MatchersImpl
 		virtual void init(const DataPoints& filteredReference);
 		virtual Matches findClosests(const DataPoints& filteredReading);
     };
-
-    struct KDTreeVarDistMatcher: public Matcher
-	{
-		inline static const std::string description()
-		{
-			return "This matcher matches a point from the reading to its closest neighbors in the reference. A maximum search radius per point can be defined.";
-		}
-		inline static const ParametersDoc availableParameters()
-		{
-			return {
-				{"knn", "number of nearest neighbors to consider it the reference", "1", "1", "2147483647", &P::Comp<unsigned>},
-				{"epsilon", "approximation to use for the nearest-neighbor search", "0", "0", "inf", &P::Comp<T>},
-				{"searchType", "Nabo search type. 0: brute force, check distance to every point in the data (very slow), 1: kd-tree with linear heap, good for small knn (~up to 30) and 2: kd-tree with tree heap, good for large knn (~from 30)", "1", "0", "2", &P::Comp<unsigned>},
-				{"maxDistField", "descriptor field name used to set a maximum distance to consider for neighbors per point", "maxSearchDist"}
-			};
-		}
-		
-		const int knn;
-		const T epsilon;
-		const NNSearchType searchType;
-		const std::string maxDistField;
-
-	protected:
-		std::shared_ptr<NNS> featureNNS;
-
-	public:
-		KDTreeVarDistMatcher(const Parameters& params = Parameters());
-		virtual ~KDTreeVarDistMatcher();
-		virtual void init(const DataPoints& filteredReference);
-		virtual Matches findClosests(const DataPoints& filteredReading);
-	};
 
 }; // MatchersImpl
 

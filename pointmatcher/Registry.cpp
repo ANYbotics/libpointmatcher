@@ -84,7 +84,6 @@ PointMatcher<T>::PointMatcher()
 	ADD_TO_REGISTRAR_NO_PARAM(Matcher, NullMatcher, typename MatchersImpl<T>::NullMatcher)
 	ADD_TO_REGISTRAR_NO_PARAM(Matcher, MirrorMatcher, typename MatchersImpl<T>::MirrorMatcher)
 	ADD_TO_REGISTRAR(Matcher, KDTreeMatcher, typename MatchersImpl<T>::KDTreeMatcher)
-	ADD_TO_REGISTRAR(Matcher, KDTreeVarDistMatcher, typename MatchersImpl<T>::KDTreeVarDistMatcher)
 	
 	ADD_TO_REGISTRAR_NO_PARAM(OutlierFilter, NullOutlierFilter, typename OutlierFiltersImpl<T>::NullOutlierFilter)
 	ADD_TO_REGISTRAR(OutlierFilter, MaxDistOutlierFilter, typename OutlierFiltersImpl<T>::MaxDistOutlierFilter)

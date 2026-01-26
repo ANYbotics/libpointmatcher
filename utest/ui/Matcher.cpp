@@ -80,7 +80,6 @@ TEST_F(MatcherTest, KDTreeMatcher)
 				params = PM::Parameters();
 				params["knn"] = toParam(knn[i]); // remove end parenthesis for bug
 				params["epsilon"] = toParam(epsilon[j]);
-				params["searchType"] = "1";
 				params["maxDist"] = toParam(maxDist[k]);
 				
 			

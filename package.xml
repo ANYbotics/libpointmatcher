@@ -8,9 +8,10 @@
   <maintainer email="gzhou@anybotics.com">Guoxiang Zhou</maintainer>
   <license>BSD</license>
   <url type="repository">https://github.com/anybotics/libpointmatcher</url>
+
   <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
   <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
-<!--   <build_depend condition="$ROS_VERSION == 1">cmake_clang_tools</build_depend> -->
+
   <build_depend>boost</build_depend>
   <build_depend>libnabo</build_depend>
   <build_depend>eigen</build_depend>
@@ -19,7 +20,7 @@
   <exec_depend>libnabo</exec_depend>
   <exec_depend>eigen</exec_depend>
   <exec_depend>yaml-cpp</exec_depend>
-<!--   <test_depend condition="$ROS_VERSION == 1">cmake_code_coverage</test_depend> -->
+
   <test_depend condition="$ROS_VERSION == 1">gtest</test_depend>
   <test_depend condition="$ROS_VERSION == 2">ament_cmake_gtest</test_depend>
   <export>

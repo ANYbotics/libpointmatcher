@@ -37,12 +37,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __POINTMATCHER_DATAPOINTSFILTERS_H
 
 #include "DataPointsFilters/Identity.h"
-#include "DataPointsFilters/HiddenPointRemoval.h"
 #include "DataPointsFilters/RemoveNaN.h"
 #include "DataPointsFilters/MaxDist.h"
 #include "DataPointsFilters/MinDist.h"
 #include "DataPointsFilters/BoundingBox.h"
-#include "DataPointsFilters/MaxQuantileOnAxis.h"
 #include "DataPointsFilters/MaxDensity.h"
 #include "DataPointsFilters/SurfaceNormal.h"
 #include "DataPointsFilters/SamplingSurfaceNormal.h"
@@ -50,19 +48,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DataPointsFilters/IncidenceAngle.h"
 #include "DataPointsFilters/RandomSampling.h"
 #include "DataPointsFilters/MaxPointCount.h"
-#include "DataPointsFilters/FixStepSampling.h"
 #include "DataPointsFilters/Shadow.h"
-#include "DataPointsFilters/SimpleSensorNoise.h"
 #include "DataPointsFilters/ObservationDirection.h"
-#include "DataPointsFilters/VoxelGrid.h"
-#include "DataPointsFilters/CutAtDescriptorThreshold.h"
-#include "DataPointsFilters/Elipsoids.h"
-#include "DataPointsFilters/Gestalt.h"
 #include "DataPointsFilters/OctreeGrid.h"
 #include "DataPointsFilters/NormalSpace.h"
-#include "DataPointsFilters/CovarianceSampling.h"
 #include "DataPointsFilters/DistanceLimit.h"
-#include "DataPointsFilters/RemoveSensorBias.h"
 #include "DataPointsFilters/OrganizedCloudSurfaceNormal.h"
 
 template<typename T>
@@ -73,7 +63,6 @@ struct DataPointsFiltersImpl
 	typedef ::MaxDistDataPointsFilter<T>	MaxDistDataPointsFilter;
 	typedef ::MinDistDataPointsFilter<T>	MinDistDataPointsFilter;
 	typedef ::BoundingBoxDataPointsFilter<T> BoundingBoxDataPointsFilter;
-	typedef ::MaxQuantileOnAxisDataPointsFilter<T> MaxQuantileOnAxisDataPointsFilter;
 	typedef ::MaxDensityDataPointsFilter<T> MaxDensityDataPointsFilter;
 	typedef ::SurfaceNormalDataPointsFilter<T> SurfaceNormalDataPointsFilter;
 	typedef ::SamplingSurfaceNormalDataPointsFilter<T> SamplingSurfaceNormalDataPointsFilter;
@@ -81,23 +70,12 @@ struct DataPointsFiltersImpl
 	typedef ::IncidenceAngleDataPointsFilter<T> IncidenceAngleDataPointsFilter;
 	typedef ::RandomSamplingDataPointsFilter<T> RandomSamplingDataPointsFilter;
 	typedef ::MaxPointCountDataPointsFilter<T> MaxPointCountDataPointsFilter;
-	typedef ::FixStepSamplingDataPointsFilter<T> FixStepSamplingDataPointsFilter;
 	typedef ::ShadowDataPointsFilter<T> ShadowDataPointsFilter;
-	typedef ::SimpleSensorNoiseDataPointsFilter<T> SimpleSensorNoiseDataPointsFilter;
 	typedef ::ObservationDirectionDataPointsFilter<T> ObservationDirectionDataPointsFilter;
-	typedef ::VoxelGridDataPointsFilter<T> VoxelGridDataPointsFilter;
-	typedef ::CutAtDescriptorThresholdDataPointsFilter<T> CutAtDescriptorThresholdDataPointsFilter;
-	typedef ::ElipsoidsDataPointsFilter<T> ElipsoidsDataPointsFilter;
-#ifndef ROS2_BUILD
-	typedef ::GestaltDataPointsFilter<T> GestaltDataPointsFilter;
-#endif
 	typedef ::OctreeGridDataPointsFilter<T> OctreeGridDataPointsFilter;
 	typedef ::NormalSpaceDataPointsFilter<T> NormalSpaceDataPointsFilter;
-	typedef ::CovarianceSamplingDataPointsFilter<T> CovarianceSamplingDataPointsFilter;
 	typedef ::DistanceLimitDataPointsFilter<T> DistanceLimitDataPointsFilter;
-	typedef ::RemoveSensorBiasDataPointsFilter<T> RemoveSensorBiasDataPointsFilter;
 	typedef ::OrganizedCloudSurfaceNormalDataPointsFilter<T> OrganizedCloudSurfaceNormalDataPointsFilter;
-    typedef ::HiddenPointRemovalDataPointsFilter<T> HiddenPointRemovalDataPointsFilter;
 
 }; // DataPointsFiltersImpl
 

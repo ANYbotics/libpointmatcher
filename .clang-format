@@ -43,7 +43,6 @@ ConstructorInitializerIndentWidth: 4
 SpacesInCStyleCastParentheses: false
 SpacesBeforeTrailingComments: 1
 ExperimentalAutoDetectBinPacking: true
-AllowAllParametersOfDeclarationOnNextLine: false
 ContinuationIndentWidth: 4
 BraceWrapping:
   SplitEmptyFunction: false

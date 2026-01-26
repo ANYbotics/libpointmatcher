@@ -4,7 +4,7 @@ readingDataPointsFilters:
       prob: 0.5
 
 referenceDataPointsFilters:
-  - SamplingSurfaceNormalDataPointsFilter:
+  - SurfaceNormalDataPointsFilter:
       knn: 10
 
 matcher:

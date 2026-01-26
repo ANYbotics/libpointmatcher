@@ -39,16 +39,12 @@ set(POINTMATCHER_SRC
 #DataPointsFilters	
 	pointmatcher/DataPointsFilters/Identity.cpp
 	pointmatcher/DataPointsFilters/RemoveNaN.cpp
-	pointmatcher/DataPointsFilters/MaxDist.cpp
-	pointmatcher/DataPointsFilters/MinDist.cpp
 	pointmatcher/DataPointsFilters/BoundingBox.cpp
 	pointmatcher/DataPointsFilters/MaxDensity.cpp
 	pointmatcher/DataPointsFilters/SurfaceNormal.cpp
-	pointmatcher/DataPointsFilters/SamplingSurfaceNormal.cpp
 	pointmatcher/DataPointsFilters/OrientNormals.cpp
 	pointmatcher/DataPointsFilters/IncidenceAngle.cpp
 	pointmatcher/DataPointsFilters/RandomSampling.cpp
-	pointmatcher/DataPointsFilters/MaxPointCount.cpp
 	pointmatcher/DataPointsFilters/Shadow.cpp
 	pointmatcher/DataPointsFilters/ObservationDirection.cpp
 	pointmatcher/DataPointsFilters/OctreeGrid.cpp

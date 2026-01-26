@@ -6,7 +6,7 @@
    zMin: -4.0
    zMax: 4.0
    removeInside: 1
-- SamplingSurfaceNormalDataPointsFilter:
+- SurfaceNormalDataPointsFilter:
     knn: 10
 - ObservationDirectionDataPointsFilter
 - OrientNormalsDataPointsFilter

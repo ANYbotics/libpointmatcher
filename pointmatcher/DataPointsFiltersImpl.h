@@ -38,16 +38,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DataPointsFilters/Identity.h"
 #include "DataPointsFilters/RemoveNaN.h"
-#include "DataPointsFilters/MaxDist.h"
-#include "DataPointsFilters/MinDist.h"
 #include "DataPointsFilters/BoundingBox.h"
 #include "DataPointsFilters/MaxDensity.h"
 #include "DataPointsFilters/SurfaceNormal.h"
-#include "DataPointsFilters/SamplingSurfaceNormal.h"
 #include "DataPointsFilters/OrientNormals.h"
 #include "DataPointsFilters/IncidenceAngle.h"
 #include "DataPointsFilters/RandomSampling.h"
-#include "DataPointsFilters/MaxPointCount.h"
 #include "DataPointsFilters/Shadow.h"
 #include "DataPointsFilters/ObservationDirection.h"
 #include "DataPointsFilters/OctreeGrid.h"
@@ -60,16 +56,12 @@ struct DataPointsFiltersImpl
 {
 	typedef ::IdentityDataPointsFilter<T>   IdentityDataPointsFilter;
 	typedef ::RemoveNaNDataPointsFilter<T>  RemoveNaNDataPointsFilter;
-	typedef ::MaxDistDataPointsFilter<T>	MaxDistDataPointsFilter;
-	typedef ::MinDistDataPointsFilter<T>	MinDistDataPointsFilter;
 	typedef ::BoundingBoxDataPointsFilter<T> BoundingBoxDataPointsFilter;
 	typedef ::MaxDensityDataPointsFilter<T> MaxDensityDataPointsFilter;
 	typedef ::SurfaceNormalDataPointsFilter<T> SurfaceNormalDataPointsFilter;
-	typedef ::SamplingSurfaceNormalDataPointsFilter<T> SamplingSurfaceNormalDataPointsFilter;
 	typedef ::OrientNormalsDataPointsFilter<T>  OrientNormalsDataPointsFilter;
 	typedef ::IncidenceAngleDataPointsFilter<T> IncidenceAngleDataPointsFilter;
 	typedef ::RandomSamplingDataPointsFilter<T> RandomSamplingDataPointsFilter;
-	typedef ::MaxPointCountDataPointsFilter<T> MaxPointCountDataPointsFilter;
 	typedef ::ShadowDataPointsFilter<T> ShadowDataPointsFilter;
 	typedef ::ObservationDirectionDataPointsFilter<T> ObservationDirectionDataPointsFilter;
 	typedef ::OctreeGridDataPointsFilter<T> OctreeGridDataPointsFilter;

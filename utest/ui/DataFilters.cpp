@@ -102,85 +102,6 @@ TEST_F(DataFilterTest, RemoveNaNDataPointsFilter)
     EXPECT_TRUE(ref2DCopy.features.cols() == goodCount);
 }
 
-TEST_F(DataFilterTest, MaxDistDataPointsFilter)
-{
-    // Max dist has been selected to not affect the points
-    params = PM::Parameters();
-    params["dim"] = "0";
-    params["maxDist"] = toParam(6.0);
-
-    // Filter on x axis
-    params["dim"] = "0";
-    icp.readingDataPointsFilters.clear();
-    addFilter("MaxDistDataPointsFilter", params);
-    validate2dTransformation();
-    validate3dTransformation();
-
-    // Filter on y axis
-    params["dim"] = "1";
-    icp.readingDataPointsFilters.clear();
-    addFilter("MaxDistDataPointsFilter", params);
-    validate2dTransformation();
-    validate3dTransformation();
-
-    // Filter on z axis (not existing)
-    params["dim"] = "2";
-    icp.readingDataPointsFilters.clear();
-    addFilter("MaxDistDataPointsFilter", params);
-    EXPECT_ANY_THROW(validate2dTransformation());
-    validate3dTransformation();
-
-    // Filter on a radius
-    params["dim"] = "-1";
-    icp.readingDataPointsFilters.clear();
-    addFilter("MaxDistDataPointsFilter", params);
-    validate2dTransformation();
-    validate3dTransformation();
-
-    // Parameter outside valid range
-    params["dim"] = "3";
-    //TODO: specify the exception, move that to GenericTest
-    EXPECT_ANY_THROW(addFilter("MaxDistDataPointsFilter", params));
-}
-
-TEST_F(DataFilterTest, MinDistDataPointsFilter)
-{
-    // Min dist has been selected to not affect the points too much
-    params = PM::Parameters();
-    params["dim"] = "0";
-    params["minDist"] = toParam(0.05);
-
-    // Filter on x axis
-    params["dim"] = "0";
-    icp.readingDataPointsFilters.clear();
-    addFilter("MinDistDataPointsFilter", params);
-    validate2dTransformation();
-    validate3dTransformation();
-
-    // Filter on y axis
-    params["dim"] = "1";
-    icp.readingDataPointsFilters.clear();
-    addFilter("MinDistDataPointsFilter", params);
-    validate2dTransformation();
-    validate3dTransformation();
-
-    //TODO: move that to specific 2D test
-    // Filter on z axis (not existing)
-    params["dim"] = "2";
-    icp.readingDataPointsFilters.clear();
-    addFilter("MinDistDataPointsFilter", params);
-    EXPECT_ANY_THROW(validate2dTransformation());
-    validate3dTransformation();
-
-    // Filter on a radius
-    params["dim"] = "-1";
-    icp.readingDataPointsFilters.clear();
-    addFilter("MinDistDataPointsFilter", params);
-    validate2dTransformation();
-    validate3dTransformation();
-}
-
-
 TEST_F(DataFilterTest, SurfaceNormalDataPointsFilter)
 {
     // This filter create descriptor, so parameters should'nt impact results
@@ -243,23 +164,6 @@ TEST_F(DataFilterTest, MaxDensityDataPointsFilter)
     }
 }
 
-TEST_F(DataFilterTest, SamplingSurfaceNormalDataPointsFilter)
-{
-    // This filter create descriptor AND subsample
-    params = PM::Parameters();
-    params["knn"] = "5";
-    params["averageExistingDescriptors"] = "1";
-    params["keepNormals"] = "1";
-    params["keepDensities"] = "1";
-    params["keepEigenValues"] = "1";
-    params["keepEigenVectors"] = "1";
-
-    addFilter("SamplingSurfaceNormalDataPointsFilter", params);
-    validate2dTransformation();
-    validate3dTransformation();
-}
-
-
 TEST_F(DataFilterTest, OrientNormalsDataPointsFilter)
 {
     // Used to create normal for reading point cloud
@@ -290,59 +194,6 @@ TEST_F(DataFilterTest, RandomSamplingDataPointsFilter)
             validate3dTransformation();
         }
     }
-}
-
-
-TEST_F(DataFilterTest, MaxPointCountDataPointsFilter)
-{
-    DP cloud = ref3D;
-
-    const size_t maxCount = 1000;
-
-    params = PM::Parameters();
-    params["seed"] = "42";
-    params["maxCount"] = toParam(maxCount);
-
-    std::shared_ptr<PM::DataPointsFilter> maxPtsFilter =
-        PM::get().DataPointsFilterRegistrar.create("MaxPointCountDataPointsFilter", params);
-
-    DP filteredCloud = maxPtsFilter->filter(cloud);
-
-    //Check number of points
-    EXPECT_GT(cloud.getNbPoints(), filteredCloud.getNbPoints());
-    EXPECT_EQ(cloud.getDescriptorDim(), filteredCloud.getDescriptorDim());
-    EXPECT_EQ(cloud.getTimeDim(), filteredCloud.getTimeDim());
-
-    EXPECT_EQ(filteredCloud.getNbPoints(), maxCount);
-
-    //Same seed should result same filtered cloud
-    DP filteredCloud2 = maxPtsFilter->filter(cloud);
-
-    EXPECT_TRUE(filteredCloud == filteredCloud2);
-
-    //Different seeds should not result same filtered cloud but same number
-    params.clear();
-    params["seed"] = "1";
-    params["maxCount"] = toParam(maxCount);
-
-    std::shared_ptr<PM::DataPointsFilter> maxPtsFilter2 =
-        PM::get().DataPointsFilterRegistrar.create("MaxPointCountDataPointsFilter", params);
-
-    DP filteredCloud3 = maxPtsFilter2->filter(cloud);
-
-    EXPECT_FALSE(filteredCloud3 == filteredCloud2);
-
-    EXPECT_EQ(filteredCloud3.getNbPoints(), maxCount);
-
-    EXPECT_EQ(filteredCloud3.getNbPoints(), filteredCloud2.getNbPoints());
-    EXPECT_EQ(filteredCloud3.getDescriptorDim(), filteredCloud2.getDescriptorDim());
-    EXPECT_EQ(filteredCloud3.getTimeDim(), filteredCloud2.getTimeDim());
-
-    //Validate transformation
-    icp.readingDataPointsFilters.clear();
-    addFilter("MaxPointCountDataPointsFilter", params);
-    validate2dTransformation();
-    validate3dTransformation();
 }
 
 TEST_F(DataFilterTest, OctreeGridDataPointsFilter)
@@ -540,7 +391,7 @@ TEST_F(DataFilterTest, SameFilterInstanceTwice)
 {
     params = PM::Parameters();
 
-    std::shared_ptr<PM::DataPointsFilter> df = PM::get().DataPointsFilterRegistrar.create("MaxPointCountDataPointsFilter", params);
+    std::shared_ptr<PM::DataPointsFilter> df = PM::get().DataPointsFilterRegistrar.create("DistanceLimitDataPointsFilter", params);
 
     icp.referenceDataPointsFilters.push_back(df);
     icp.readingDataPointsFilters.push_back(df);

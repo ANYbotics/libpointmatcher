@@ -83,13 +83,6 @@ int main(int argc, char *argv[])
 	std::shared_ptr<PM::Transformation> transformation;
 	transformation = PM::get().REG(Transformation).create("RigidTransformation");
 
-	// This filter will remove a sphere of 1 m radius. Easy way to remove the sensor self-scanning.
-	std::shared_ptr<PM::DataPointsFilter> removeScanner =
-		PM::get().DataPointsFilterRegistrar.create(
-			"MinDistDataPointsFilter",
-			{{"minDist", "1.0"}}
-		);
-
 	// This filter will randomly remove 35% of the points.
 	std::shared_ptr<PM::DataPointsFilter> randSubsample =
 		PM::get().DataPointsFilterRegistrar.create(

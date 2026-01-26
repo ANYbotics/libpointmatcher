@@ -2,12 +2,8 @@ readingDataPointsFilters:
   - IdentityDataPointsFilter:
 
 referenceDataPointsFilters:
-  - SamplingSurfaceNormalDataPointsFilter:
+  - SurfaceNormalDataPointsFilter:
       knn: 10
-      ratio: 1.0 
-      samplingMethod: 0
-      averageExistingDescriptors: 0
-
 matcher:
   KDTreeMatcher:
     knn: 1

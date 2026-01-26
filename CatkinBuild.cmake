@@ -19,6 +19,7 @@ find_package(catkin REQUIRED
 )
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS chrono date_time filesystem program_options system thread timer)
+find_package(yaml-cpp QUIET)
 
 # Catkin package macro
 catkin_package(

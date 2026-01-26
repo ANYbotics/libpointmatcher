@@ -427,8 +427,6 @@ T PointToPlaneErrorMinimizer<T>::getOverlap() const
 {
 
 	// Gather some information on what kind of point cloud we have
-	const bool hasReadingNoise = this->lastErrorElements.reading.descriptorExists("simpleSensorNoise");
-	const bool hasReferenceNoise = this->lastErrorElements.reference.descriptorExists("simpleSensorNoise");
 	const bool hasReferenceDensity = this->lastErrorElements.reference.descriptorExists("densities");
 
 	const int nbPoints = this->lastErrorElements.reading.features.cols();
@@ -440,10 +438,8 @@ T PointToPlaneErrorMinimizer<T>::getOverlap() const
 		throw std::runtime_error("Error, last error element empty. Error minimizer needs to be called at least once before using this method.");
 	}
 
-	Eigen::Array<T, 1, Eigen::Dynamic>  uncertainties(nbPoints);
-
 	// optimal case
-	if (hasReadingNoise && hasReferenceNoise && hasReferenceDensity)
+	if (hasReferenceDensity)
 	{
 		// find median density
 
@@ -456,23 +452,6 @@ T PointToPlaneErrorMinimizer<T>::getOverlap() const
 		// extract median value
 		const T medianDensity = values[values.size() * 0.5];
 		const T medianRadius = 1.0/pow(medianDensity, 1/3.0);
-
-		uncertainties = (medianRadius +
-						this->lastErrorElements.reading.getDescriptorViewByName("simpleSensorNoise").array() +
-						this->lastErrorElements.reference.getDescriptorViewByName("simpleSensorNoise").array());
-	}
-	else if(hasReadingNoise && hasReferenceNoise)
-	{
-		uncertainties = this->lastErrorElements.reading.getDescriptorViewByName("simpleSensorNoise") +
-						this->lastErrorElements.reference.getDescriptorViewByName("simpleSensorNoise");
-	}
-	else if(hasReadingNoise)
-	{
-		uncertainties = this->lastErrorElements.reading.getDescriptorViewByName("simpleSensorNoise");
-	}
-	else if(hasReferenceNoise)
-	{
-		uncertainties = this->lastErrorElements.reference.getDescriptorViewByName("simpleSensorNoise");
 	}
 	else
 	{
@@ -499,12 +478,8 @@ T PointToPlaneErrorMinimizer<T>::getOverlap() const
 			// projectionDist = delta dotProduct n.normalized()
 			// but this doesn't make sense 
 
-
-			if(PointMatcherSupport::anyabs(dists(i, 0)) < (uncertainties(0,i)))
-			{
-				lastValidPoint = point;
-				count++;
-			}
+			lastValidPoint = point;
+			count++;
 		}
 
 		// Count unique points

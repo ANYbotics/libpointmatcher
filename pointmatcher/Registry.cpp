@@ -137,11 +137,11 @@ const PointMatcher<T>& PointMatcher<T>::get()
 	return _getPM<T>();
 }
 
-template const PointMatcher<float>& PointMatcher<float>::get();
-template const PointMatcher<double>& PointMatcher<double>::get();
+// template const PointMatcher<float>& PointMatcher<float>::get();
+// template const PointMatcher<double>& PointMatcher<double>::get();
 
-template PointMatcher<float>::PointMatcher();
-template PointMatcher<double>::PointMatcher();
+// template PointMatcher<float>::PointMatcher();
+// template PointMatcher<double>::PointMatcher();
 
-// template struct PointMatcher<float>;
-// template struct PointMatcher<double>;
+template struct PointMatcher<float>;
+template struct PointMatcher<double>;

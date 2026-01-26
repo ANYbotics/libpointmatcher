@@ -57,12 +57,10 @@ add_library(pointmatcher
   pointmatcher/ErrorMinimizers/Identity.cpp
   #DataPointsFilters	
   pointmatcher/DataPointsFilters/Identity.cpp
-  pointmatcher/DataPointsFilters/HiddenPointRemoval.cpp
   pointmatcher/DataPointsFilters/RemoveNaN.cpp
   pointmatcher/DataPointsFilters/MaxDist.cpp
   pointmatcher/DataPointsFilters/MinDist.cpp
   pointmatcher/DataPointsFilters/BoundingBox.cpp
-  pointmatcher/DataPointsFilters/MaxQuantileOnAxis.cpp
   pointmatcher/DataPointsFilters/MaxDensity.cpp
   pointmatcher/DataPointsFilters/SurfaceNormal.cpp
   pointmatcher/DataPointsFilters/SamplingSurfaceNormal.cpp
@@ -70,21 +68,12 @@ add_library(pointmatcher
   pointmatcher/DataPointsFilters/IncidenceAngle.cpp
   pointmatcher/DataPointsFilters/RandomSampling.cpp
   pointmatcher/DataPointsFilters/MaxPointCount.cpp
-  pointmatcher/DataPointsFilters/FixStepSampling.cpp
   pointmatcher/DataPointsFilters/Shadow.cpp
-  pointmatcher/DataPointsFilters/SimpleSensorNoise.cpp
   pointmatcher/DataPointsFilters/ObservationDirection.cpp
-  pointmatcher/DataPointsFilters/VoxelGrid.cpp
-  pointmatcher/DataPointsFilters/CutAtDescriptorThreshold.cpp
-  pointmatcher/DataPointsFilters/Elipsoids.cpp
-  # NOTE(apoghosov): this file seems to be outdated and does not compile with the Eigen 3.4.0 ... we don't use it
-  # anyway so simply switch the guy off ...
-  #pointmatcher/DataPointsFilters/Gestalt.cpp
   pointmatcher/DataPointsFilters/OctreeGrid.cpp
   pointmatcher/DataPointsFilters/NormalSpace.cpp
   pointmatcher/DataPointsFilters/CovarianceSampling.cpp
   pointmatcher/DataPointsFilters/DistanceLimit.cpp
-  pointmatcher/DataPointsFilters/RemoveSensorBias.cpp
   pointmatcher/DataPointsFilters/OrganizedCloudSurfaceNormal.cpp
   #PointCloudGenerators
   pointmatcher/PointCloudGenerator.cpp

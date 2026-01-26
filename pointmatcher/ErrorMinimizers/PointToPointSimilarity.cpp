@@ -120,27 +120,7 @@ T PointToPointSimilarityErrorMinimizer<T>::getOverlap() const
 		throw std::runtime_error("Error, last error element empty. Error minimizer needs to be called at least once before using this method.");
 	}
 	
-	if (!this->lastErrorElements.reading.descriptorExists("simpleSensorNoise"))
-	{
-		LOG_INFO_STREAM("PointToPointSimilarityErrorMinimizer - warning, no sensor noise found. Using best estimate given outlier rejection instead.");
-		return this->getWeightedPointUsedRatio();
-	}
-	
-	const BOOST_AUTO(noises, this->lastErrorElements.reading.getDescriptorViewByName("simpleSensorNoise"));
-	
-	const Vector dists = (this->lastErrorElements.reading.features.topRows(dim-1) - this->lastErrorElements.reference.features.topRows(dim-1)).colwise().norm();
-	const T mean = dists.sum()/nbPoints;
-	
-	int count = 0;
-	for(int i=0; i < nbPoints; i++)
-	{
-		if(dists(i) < (mean + noises(0,i)))
-		{
-			count++;
-		}
-	}
-	
-	return (T)count/(T)nbPoints;
+	return this->getWeightedPointUsedRatio();
 }
 
 template struct PointToPointSimilarityErrorMinimizer<float>;

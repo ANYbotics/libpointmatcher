@@ -103,6 +103,9 @@ target_include_directories(pointmatcher
     )
 
 target_link_libraries(pointmatcher
+  # libnabo now comes from rosdep (ros-jazzy-libnabo), which exports only the libnabo::nabo target and an
+  # empty libnabo_INCLUDE_DIRS, so ament_target_dependencies(libnabo) adds no include path. Link the target.
+  libnabo::nabo
   Eigen3::Eigen
   Boost::chrono
   Boost::date_time

@@ -20,7 +20,9 @@ include(cmake/configExtras.cmake)
 ## Library definition ##
 ########################
 
-add_library(pointmatcher
+# SHARED regardless of BUILD_SHARED_LIBS: a static archive embedded in several consumer .so files gives each its
+# own copy of the Registry/Logger globals, which the dynamic linker merges and then destroys twice at exit.
+add_library(pointmatcher SHARED
   pointmatcher/Logger.cpp
   pointmatcher/Exceptions.cpp
   pointmatcher/DataPoints.cpp
@@ -55,7 +57,7 @@ add_library(pointmatcher
   pointmatcher/ErrorMinimizers/PointToPointWithCov.cpp
   pointmatcher/ErrorMinimizers/PointToPointSimilarity.cpp
   pointmatcher/ErrorMinimizers/Identity.cpp
-  #DataPointsFilters	
+  #DataPointsFilters
   pointmatcher/DataPointsFilters/Identity.cpp
   pointmatcher/DataPointsFilters/HiddenPointRemoval.cpp
   pointmatcher/DataPointsFilters/RemoveNaN.cpp
@@ -157,9 +159,9 @@ ament_export_dependencies(${PACKAGE_DEPENDENCIES})
 #############
 ## Testing ##
 #############
-  
+
 if(BUILD_TESTING)
-  
+
   # testing library ...
   add_library(pointmatcher_testing
     pointmatcher/testing/utils_filesystem.cpp
@@ -190,7 +192,7 @@ if(BUILD_TESTING)
     Boost::system
     ${yaml_cpp_target}
     )
-  
+
   find_package(ament_cmake_gtest REQUIRED)
 
   set(SAVE_TEST_DATA_TO_DISK 0)
@@ -237,7 +239,7 @@ if(BUILD_TESTING)
         ${PROJECT_SOURCE_DIR}/utest/ui/*
       )
   endif()
-	
+
 endif()
 
 ament_package(CONFIG_EXTRAS cmake/configExtras.cmake)

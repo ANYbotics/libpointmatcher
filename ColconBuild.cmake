@@ -213,6 +213,8 @@ if(BUILD_TESTING)
     utest/ui/octree/Octree.cpp
     utest/ui/icp/GeneralTests.cpp
     utest/ui/icp/Conditioning.cpp
+    # Takes up to 58 s on CI hosts, more under CPU throttling; the 60 s default kills it.
+    TIMEOUT 180
     )
 
   target_compile_definitions(test_pointmatcher PRIVATE
